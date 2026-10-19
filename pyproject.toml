@@ -1,0 +1,115 @@
+[build-system]
+requires = ["setuptools >= 30.0.3", "versioneer == 0.29"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["psylog*"]
+
+[project]
+name = "psylog"
+dynamic = ["version"]
+authors = [
+    { name = "Simon R. Steinkamp", email= "rewardgym@mailbox.org" },
+    ]
+description = "psylog is a small library initially written to log PsychoPy fMRI experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
+readme = "README.rst"
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intendend Audience :: Research/Science",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+requires-python = ">= 3.8"
+
+dependencies = [
+]
+
+[project.optional-dependencies]
+doc = [
+    "sphinx>=2.0",
+    "sphinx-argparse",
+    "sphinx_rtd_theme",
+    "myst-parser[linkify]",
+    "sphinx-copybutton",
+    "nbsphinx",
+    "sphinxcontrib-bibtex",
+    "jupytext",
+    "nbsphinx_link",
+    "sphinxcontrib-relativeinclude"
+]
+style = [
+    "ruff",
+    "isort",
+    "pydocstyle",
+    "codespell"
+]
+test = [
+    "psylog[style]",
+    "pytest>=5.3",
+    "pytest-cov",
+    "coverage"
+]
+devtools = [
+    "pre-commit",
+    "jupyter"
+]
+dev = ["psylog[devtools,doc,test]"]
+
+[project.urls]
+Documentation = "https://github.com/SRSteinkamp/psylog"
+Source = "https://github.com/SRSteinkamp/psylog"
+
+[project.scripts]
+
+[tool.pytest.ini_options]
+doctest_optionflags = "NORMALIZE_WHITESPACE"
+xfail_strict = true
+addopts = [
+    "--import-mode=importlib",
+    "-rx"
+]
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+extend_skip = [
+    ".autorc",
+    ".coverage*",
+    ".readthedocs.yml",
+    ".zenodo.json",
+    "codecov.yml",
+    "setup.py",
+    "versioneer.py",
+    "psylog/_version.py"
+]
+skip_glob = ["docs/*"]
+
+[tool.pydocstyle]
+convention = "numpy"
+match = "psylog/*.py"
+match-dir = "psylog/[^tests]*"
+
+[tool.codespell]
+skip = [".git", "build", "./docs/_build"]
+ignore-words-list = [""]
+write-changes = true
+count = true
+quiet-level = 3
+
+[tool.ruff.lint.per-file-ignores]
+"psylog/tests/*" = ["E712"]
+"notebooks/*" = ["E402"]
+
+[tool.ruff]
+exclude = ["psylog/tasks/*/*"]
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "psylog/_version.py"
+versionfile_build = "psylog/_version.py"
+tag_prefix = ""
+parentdir_prefix = ""

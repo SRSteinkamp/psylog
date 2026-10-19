@@ -1,0 +1,18 @@
+name: auto-label
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+on:  # yamllint disable-line rule:truthy
+  pull_request_target
+
+jobs:
+  labeler:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4 # Uploads repository content to the runner
+      with:
+        repository: "SRSteinkamp/psylog" # The one of the available inputs, visit https://github.com/actions/checkout#readme to find more
+    - uses: actions/labeler@v5
