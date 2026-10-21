@@ -79,6 +79,9 @@ class CategoryConfig:
     long_name: str = ""
 
     def __post_init__(self):
+        if self.validator is None:
+            self.validator = Validator(allow_na=True)
+
         self._validate_config()
         self.state: Any = deepcopy(self.default)
 
