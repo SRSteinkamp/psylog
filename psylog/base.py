@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, List, Optional
 
+from .io_streams import FileLogOutput
 from .log_schema import LogMode
 from .schema_helper import create_static_fields, get_mandatory_bids_events
 
@@ -19,6 +20,7 @@ class ParentLogger:
         na: str = "n/a",
         categories: Optional[List] = None,
         static_columns: Optional[Dict] = None,
+        output=None,
     ):
         """
         Initialize minimal BIDS-compliant logger.
@@ -56,7 +58,8 @@ class ParentLogger:
         }
 
         # Initialize file state
-        self._file = None
+        self._output = output if output is not None else FileLogOutput(file_name)
+
         self._trial_start = None
 
     def log_event(self, info_dict: Dict, onset: float = None) -> None:
@@ -75,9 +78,15 @@ class ParentLogger:
         if unknown:
             raise ValueError(f"Unknown categories: {unknown}")
 
-        # Create base dictionary with defaults
-        tmp_dict = self._default_logging()
-
+        tmp_dict = {}
+        for c in self.categories:
+            if c.mode == LogMode.IMPLIED:
+                handler = self.implied_handlers.get(c.name)
+                tmp_dict[c.name] = handler() if handler else self.na
+            elif c.mode in (LogMode.STATE, LogMode.STATIC):
+                tmp_dict[c.name] = c.state
+            else:
+                tmp_dict[c.name] = self.na
         # Handle onset/duration
         if onset is not None:
             tmp_dict["onset"] = onset
@@ -90,48 +99,21 @@ class ParentLogger:
             tmp_dict[key] = value
 
         # Write to file
-        self._write_to_file(self._create_log_list(tmp_dict))
-
-    def _default_logging(self) -> Dict:
-        """Create dictionary with default values"""
-        return {
-            c.name: self._handle_implied_category(c.name)
-            if c.mode == LogMode.IMPLIED
-            else (
-                c.state
-                if (c.mode == LogMode.STATE or c.mode == LogMode.STATIC)
-                else self.na
-            )
-            for c in self.categories
-        }
+        self._output.write_row(
+            [str(tmp_dict[c.name]) for c in self.categories], self.sep
+        )
 
     def _get_time(self) -> float:
         """Get current time - to be implemented by child classes."""
         raise NotImplementedError("Child classes must implement _get_time()")
 
-    def _create_log_list(self, tmp_dict: Dict) -> List[str]:
-        """Convert dictionary to list of strings in category order."""
-        return [str(tmp_dict[c.name]) for c in self.categories]
-
-    def _write_to_file(self, values: List[str]) -> None:
-        """Write values to file."""
-        if not self._file:
-            self._file = open(self.file_name, "w")
-            self._write_to_file([c.name for c in self.categories])
-
-        self._file.write(self.sep.join(values) + "\n")
-
-    def create(self, mode: str = "w") -> None:
-        """Create/open log file."""
-        if self._file:
-            self._file.close()
-        self._file = open(self.file_name, mode)
+    def create(self) -> None:
+        """Open the output backend and write the column header."""
+        self._output.create([c.name for c in self.categories], self.sep)
 
     def close(self) -> None:
-        """Close log file."""
-        if self._file:
-            self._file.close()
-            self._file = None
+        """Close the output backend."""
+        self._output.close()
 
     def set_trial_time(self) -> None:
         """Set trial start time."""
