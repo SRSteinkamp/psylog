@@ -239,7 +239,7 @@ class PsychoPyLogger(ParentLogger):
 
         # Experiment parameters
         self.current_trial = -1
-        self.trial_start_time = None
+        self._trial_start = None
 
         # Create the file (writes header)
         self.create()
@@ -262,7 +262,7 @@ class PsychoPyLogger(ParentLogger):
         else:
             self.current_trial += 1
 
-        self.trial_start_time = self._get_time()
+        self._trial_start = self._get_time()
 
         # Update trial state category if it exists
         if "trial" in self.categories_dict:
