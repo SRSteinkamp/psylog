@@ -94,3 +94,43 @@ def get_mandatory_bids_events(
             validator=Validator(str),
         ),
     ]
+
+
+def get_psychopy_fields() -> List[CategoryConfig]:
+    """
+    Create minimal BIDS-compliant event categories with sensible defaults.
+
+    Parameters
+    ----------
+    onset_units : str, optional
+        Units for onset times, by default "seconds"
+    duration_units : str, optional
+        Units for durations, by default "seconds"
+    onset_description : str, optional
+        Description for onset category, by default "Event onset time"
+    duration_description : str, optional
+        Description for duration category, by default "Event duration"
+
+    Returns
+    -------
+    List[CategoryConfig]
+        List containing onset and duration categories
+    """
+    return [
+        CategoryConfig(
+            name="trial",
+            default=-1,
+            mode=LogMode.STATE,
+            description="The running trial number",
+            units="trials",
+            validator=Validator(int),
+        ),
+        CategoryConfig(
+            name="trial_time",
+            default="n/a",
+            mode=LogMode.IMPLIED,
+            description="The running time since trial start.",
+            units="seconds",
+            validator=Validator(float),
+        ),
+    ]

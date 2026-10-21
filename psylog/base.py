@@ -4,7 +4,11 @@ from typing import Any, Callable, Dict, List, Optional
 
 from .io_streams import FileLogOutput
 from .log_schema import LogMode
-from .schema_helper import create_static_fields, get_mandatory_bids_events
+from .schema_helper import (
+    create_static_fields,
+    get_mandatory_bids_events,
+    get_psychopy_fields,
+)
 
 
 class ParentLogger:
@@ -200,3 +204,66 @@ class ParentLogger:
         if category_name in self.implied_handlers:
             return self.implied_handlers[category_name]()
         return self.na
+
+
+class PsychoPyLogger(ParentLogger):
+    """
+    PsychoPy-specific logger that extends ParentLogger with PsychoPy-specific functionality.
+    Tracks trial number, trial onsets, and integrates with PsychoPy's Clock.
+    """
+
+    def __init__(
+        self,
+        file_name: str,
+        global_clock,
+        sep: str = "\t",
+        na: str = "n/a",
+        categories: Optional[List] = None,
+        static_columns: Optional[Dict] = None,
+    ):
+        if categories is None:
+            self.categories = get_mandatory_bids_events()
+            self.categories += get_psychopy_fields()
+
+        # Initialize ParentLogger
+        super().__init__(
+            file_name=file_name,
+            sep=sep,
+            na=na,
+            categories=categories,
+            static_columns=static_columns,
+        )
+
+        # Set up clocks
+        self.global_clock = global_clock
+
+        # Experiment parameters
+        self.current_trial = -1
+        self.trial_start_time = None
+
+        # Create the file (writes header)
+        self.create()
+
+    def _get_time(self) -> float:
+        """Get current time from global clock - required by ParentLogger."""
+        return self.global_clock.getTime()
+
+    def start_trial(self, trial_number: int = None):
+        """
+        Start a new trial.
+
+        Parameters
+        ----------
+        trial_number : int, optional
+            Trial number to set, by default increments current trial
+        """
+        if trial_number is not None:
+            self.current_trial = trial_number
+        else:
+            self.current_trial += 1
+
+        self.trial_start_time = self._get_time()
+
+        # Update trial state category if it exists
+        if "trial" in self.categories_dict:
+            self.categories_dict["trial"].set_state(self.current_trial)
