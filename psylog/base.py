@@ -78,6 +78,14 @@ class ParentLogger:
         if unknown:
             raise ValueError(f"Unknown categories: {unknown}")
 
+        # Update state for STATE-mode categories BEFORE creating temp_dict
+        if info_dict is not None:
+            for key, value in info_dict.items():
+                category = self.categories_dict[key]
+                if category.mode == LogMode.STATE:
+                    category.set_state(value)
+
+        # Create base dictionary with default values
         tmp_dict = {}
         for c in self.categories:
             if c.mode == LogMode.IMPLIED:
@@ -87,17 +95,29 @@ class ParentLogger:
                 tmp_dict[c.name] = c.state
             else:
                 tmp_dict[c.name] = self.na
-        # Handle onset/duration
+
+        # Handle custom onset and calculate duration if needed
         if onset is not None:
-            tmp_dict["onset"] = onset
+            if onset <= tmp_dict.get("onset", float("inf")):
+                # Calculate duration if we're overriding onset
+                if "onset" in tmp_dict and "duration" in tmp_dict:
+                    tmp_dict["duration"] = tmp_dict["onset"] - onset
+                tmp_dict["onset"] = onset
+            else:
+                raise ValueError(
+                    "User defined onset needs to be before automatic onset!"
+                )
 
-        # Update with provided values
+        # Update with provided values - special handling for EVENT mode
         for key, value in info_dict.items():
-            category = self.categories_dict[key]
-            if not category.validator.validate(value):
-                raise ValueError(f"Invalid value {value!r} for {key}")
-            tmp_dict[key] = value
+            if value is not None:
+                category = self.categories_dict[key]
+                if not category.validator.validate(value):
+                    raise ValueError(f"Invalid value {value!r} for {key}")
 
+                # For EVENT mode, use the provided value directly
+                if category.mode == LogMode.EVENT:
+                    tmp_dict[key] = value
         # Write to file
         self._output.write_row(
             [str(tmp_dict[c.name]) for c in self.categories], self.sep
