@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any, Callable, Dict, List, Optional
 
 from .io_streams import FileLogOutput
@@ -9,6 +10,13 @@ from .schema_helper import (
     get_mandatory_bids_events,
     get_psychopy_fields,
 )
+
+
+class SystemClock:
+    """Default clock using Python's time module"""
+
+    def getTime(self) -> float:
+        return time.time()
 
 
 class ParentLogger:
@@ -22,6 +30,7 @@ class ParentLogger:
         file_name: str,
         sep: str = "\t",
         na: str = "n/a",
+        clock=None,
         categories: Optional[List] = None,
         static_columns: Optional[Dict] = None,
         output=None,
@@ -42,6 +51,7 @@ class ParentLogger:
         self.sep = sep
         self.na = na
 
+        self.clock = clock if clock is not None else SystemClock()
         # Create minimal required categories (BIDS specification)
         if categories is None:
             self.categories = get_mandatory_bids_events()
@@ -127,9 +137,9 @@ class ParentLogger:
             [str(tmp_dict[c.name]) for c in self.categories], self.sep
         )
 
-    def _get_time(self) -> float:
-        """Get current time - to be implemented by child classes."""
-        raise NotImplementedError("Child classes must implement _get_time()")
+    def get_time(self) -> float:
+        """Get current time from clock object"""
+        return self.clock.getTime()
 
     def create(self) -> None:
         """Open the output backend and write the column header."""
@@ -141,7 +151,7 @@ class ParentLogger:
 
     def set_trial_time(self) -> None:
         """Set trial start time."""
-        self._trial_start = self._get_time()
+        self._trial_start = self.get_time()
 
     def get_bids_sidecar(self) -> Dict:
         """Generate BIDS sidecar metadata."""
@@ -163,12 +173,12 @@ class ParentLogger:
 
     def _default_onset_handler(self) -> float:
         """Simple handler for onset times"""
-        return self._get_time()
+        return self.get_time()
 
     def _default_trial_time_handler(self) -> float:
         """Simple handler for trial time"""
         if hasattr(self, "_trial_start") and self._trial_start is not None:
-            return self._get_time() - self._trial_start
+            return self.get_time() - self._trial_start
 
         return self.na
 
@@ -232,10 +242,8 @@ class PsychoPyLogger(ParentLogger):
             na=na,
             categories=categories,
             static_columns=static_columns,
+            clock=global_clock,
         )
-
-        # Set up clocks
-        self.global_clock = global_clock
 
         # Experiment parameters
         self.current_trial = -1
@@ -243,10 +251,6 @@ class PsychoPyLogger(ParentLogger):
 
         # Create the file (writes header)
         self.create()
-
-    def _get_time(self) -> float:
-        """Get current time from global clock - required by ParentLogger."""
-        return self.global_clock.getTime()
 
     def start_trial(self, trial_number: int = None):
         """
@@ -262,7 +266,7 @@ class PsychoPyLogger(ParentLogger):
         else:
             self.current_trial += 1
 
-        self._trial_start = self._get_time()
+        self._trial_start = self.get_time()
 
         # Update trial state category if it exists
         if "trial" in self.categories_dict:
