@@ -6,8 +6,8 @@
     ["released", {"label": "Released", "prereleaseLabel": "Prereleased"}],
     ["pr-body-labels", { "disabledLabels": ["release", "Release", "Released", "Prereleased", "Skip release"] }]
   ],
-  "owner": "rewardMap",
-  "repo": "rewardGym",
+  "owner": "SRSteinkamp",
+  "repo": "psylog",
   "name": "Simon R. Steinkamp",
   "email": "rewardgym@mailbox.org",
   "labels": [
