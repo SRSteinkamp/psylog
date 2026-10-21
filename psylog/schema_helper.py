@@ -118,6 +118,22 @@ def get_psychopy_fields() -> List[CategoryConfig]:
     """
     return [
         CategoryConfig(
+            name="response_time",
+            default="n/a",
+            mode=LogMode.EVENT,
+            description="Response time",
+            units="seconds",
+            validator=Validator(float),
+        ),
+        CategoryConfig(
+            name="response_button",
+            default="n/a",
+            mode=LogMode.EVENT,
+            description="The response button being pressed.",
+            units="n/a",
+            validator=None,
+        ),
+        CategoryConfig(
             name="trial",
             default=-1,
             mode=LogMode.STATE,
