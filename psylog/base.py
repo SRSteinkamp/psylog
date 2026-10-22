@@ -31,6 +31,7 @@ class ParentLogger:
         sep: str = "\t",
         na: str = "n/a",
         clock=None,
+        trial_clock=None,
         categories: Optional[List] = None,
         static_columns: Optional[Dict] = None,
         output=None,
@@ -74,6 +75,7 @@ class ParentLogger:
         # Initialize file state
         self._output = output if output is not None else FileLogOutput(file_name)
 
+        self.trial_clock = trial_clock
         self._trial_start = None
 
     def log_event(self, info_dict: Dict, onset: float = None) -> None:
@@ -175,12 +177,22 @@ class ParentLogger:
         """Simple handler for onset times"""
         return self.get_time()
 
+    def get_trial_time(self):
+        if hasattr(self, "trial_clock") and self.trial_clock is not None:
+            return self.trial_clock.getTime()
+        elif hasattr(self, "_trial_start") and self._trial_start is not None:
+            return self.get_time() - self._trial_start
+        else:
+            return None
+
     def _default_trial_time_handler(self) -> float:
         """Simple handler for trial time"""
-        if hasattr(self, "_trial_start") and self._trial_start is not None:
-            return self.get_time() - self._trial_start
+        current_trial_time = self.get_trial_time()
 
-        return self.na
+        if current_trial_time is None:
+            return self.na
+        else:
+            return current_trial_time
 
     def add_implied_handler(
         self, category_name: str, handler_func: Callable[[], Any]
@@ -226,6 +238,7 @@ class PsychoPyLogger(ParentLogger):
         self,
         file_name: str,
         global_clock,
+        trial_clock=None,
         sep: str = "\t",
         na: str = "n/a",
         categories: Optional[List] = None,
@@ -243,6 +256,7 @@ class PsychoPyLogger(ParentLogger):
             categories=categories,
             static_columns=static_columns,
             clock=global_clock,
+            trial_clock=trial_clock,
         )
 
         # Experiment parameters
