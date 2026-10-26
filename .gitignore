@@ -6,6 +6,10 @@ assets/questionnaires
 assets/instructions/*.png
 docs/build_
 
+.ignorefornow
+
+__marimo__
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

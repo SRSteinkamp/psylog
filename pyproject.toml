@@ -12,7 +12,7 @@ authors = [
     { name = "Simon R. Steinkamp", email= "rewardgym@mailbox.org" },
     ]
 description = "psylog is a small library initially written to log PsychoPy fMRI experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
-readme = "README.rst"
+readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -24,21 +24,15 @@ classifiers = [
 ]
 requires-python = ">= 3.8"
 
-dependencies = [
-]
+dependencies = []
 
 [project.optional-dependencies]
 doc = [
     "sphinx>=2.0",
-    "sphinx-argparse",
     "sphinx_rtd_theme",
     "myst-parser[linkify]",
     "sphinx-copybutton",
-    "nbsphinx",
-    "sphinxcontrib-bibtex",
-    "jupytext",
-    "nbsphinx_link",
-    "sphinxcontrib-relativeinclude"
+    "sphinx-autoapi",
 ]
 style = [
     "ruff",

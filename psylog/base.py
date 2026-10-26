@@ -1,10 +1,22 @@
 from __future__ import annotations
 
+import time
 from typing import Any, Callable, Dict, List, Optional
 
 from .io_streams import FileLogOutput
 from .log_schema import LogMode
-from .schema_helper import create_static_fields, get_mandatory_bids_events
+from .schema_helper import (
+    create_static_fields,
+    get_mandatory_bids_events,
+    get_psychopy_fields,
+)
+
+
+class SystemClock:
+    """Default clock using Python's time module"""
+
+    def getTime(self) -> float:
+        return time.time()
 
 
 class ParentLogger:
@@ -18,6 +30,8 @@ class ParentLogger:
         file_name: str,
         sep: str = "\t",
         na: str = "n/a",
+        clock=None,
+        trial_clock=None,
         categories: Optional[List] = None,
         static_columns: Optional[Dict] = None,
         output=None,
@@ -38,6 +52,7 @@ class ParentLogger:
         self.sep = sep
         self.na = na
 
+        self.clock = clock if clock is not None else SystemClock()
         # Create minimal required categories (BIDS specification)
         if categories is None:
             self.categories = get_mandatory_bids_events()
@@ -60,6 +75,7 @@ class ParentLogger:
         # Initialize file state
         self._output = output if output is not None else FileLogOutput(file_name)
 
+        self.trial_clock = trial_clock
         self._trial_start = None
 
     def log_event(self, info_dict: Dict, onset: float = None) -> None:
@@ -123,9 +139,9 @@ class ParentLogger:
             [str(tmp_dict[c.name]) for c in self.categories], self.sep
         )
 
-    def _get_time(self) -> float:
-        """Get current time - to be implemented by child classes."""
-        raise NotImplementedError("Child classes must implement _get_time()")
+    def get_time(self) -> float:
+        """Get current time from clock object"""
+        return self.clock.getTime()
 
     def create(self) -> None:
         """Open the output backend and write the column header."""
@@ -137,7 +153,7 @@ class ParentLogger:
 
     def set_trial_time(self) -> None:
         """Set trial start time."""
-        self._trial_start = self._get_time()
+        self._trial_start = self.get_time()
 
     def get_bids_sidecar(self) -> Dict:
         """Generate BIDS sidecar metadata."""
@@ -159,14 +175,24 @@ class ParentLogger:
 
     def _default_onset_handler(self) -> float:
         """Simple handler for onset times"""
-        return self._get_time()
+        return self.get_time()
+
+    def get_trial_time(self):
+        if hasattr(self, "trial_clock") and self.trial_clock is not None:
+            return self.trial_clock.getTime()
+        elif hasattr(self, "_trial_start") and self._trial_start is not None:
+            return self.get_time() - self._trial_start
+        else:
+            return None
 
     def _default_trial_time_handler(self) -> float:
         """Simple handler for trial time"""
-        if hasattr(self, "_trial_start") and self._trial_start is not None:
-            return self._get_time() - self._trial_start
+        current_trial_time = self.get_trial_time()
 
-        return self.na
+        if current_trial_time is None:
+            return self.na
+        else:
+            return current_trial_time
 
     def add_implied_handler(
         self, category_name: str, handler_func: Callable[[], Any]
@@ -200,3 +226,62 @@ class ParentLogger:
         if category_name in self.implied_handlers:
             return self.implied_handlers[category_name]()
         return self.na
+
+
+class PsychoPyLogger(ParentLogger):
+    """
+    PsychoPy-specific logger that extends ParentLogger with PsychoPy-specific functionality.
+    Tracks trial number, trial onsets, and integrates with PsychoPy's Clock.
+    """
+
+    def __init__(
+        self,
+        file_name: str,
+        global_clock,
+        trial_clock=None,
+        sep: str = "\t",
+        na: str = "n/a",
+        categories: Optional[List] = None,
+        static_columns: Optional[Dict] = None,
+    ):
+        if categories is None:
+            self.categories = get_mandatory_bids_events()
+            self.categories += get_psychopy_fields()
+
+        # Initialize ParentLogger
+        super().__init__(
+            file_name=file_name,
+            sep=sep,
+            na=na,
+            categories=categories,
+            static_columns=static_columns,
+            clock=global_clock,
+            trial_clock=trial_clock,
+        )
+
+        # Experiment parameters
+        self.current_trial = -1
+        self._trial_start = None
+
+        # Create the file (writes header)
+        self.create()
+
+    def start_trial(self, trial_number: int = None):
+        """
+        Start a new trial.
+
+        Parameters
+        ----------
+        trial_number : int, optional
+            Trial number to set, by default increments current trial
+        """
+        if trial_number is not None:
+            self.current_trial = trial_number
+        else:
+            self.current_trial += 1
+
+        self._trial_start = self.get_time()
+
+        # Update trial state category if it exists
+        if "trial" in self.categories_dict:
+            self.categories_dict["trial"].set_state(self.current_trial)
