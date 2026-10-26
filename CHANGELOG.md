@@ -1,3 +1,15 @@
+# 0.0.2 (Mon Oct 26 2026)
+
+#### 🐛 Bug Fix
+
+- Implementing builder logging [#1](https://github.com/SRSteinkamp/psylog/pull/1) ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### Authors: 1
+
+- SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+---
+
 # 0.0.1 (Wed Oct 21 2026)
 
 :tada: This release contains work from a new contributor! :tada:
