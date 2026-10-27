@@ -66,21 +66,6 @@ addopts = [
     "-rx"
 ]
 
-[tool.isort]
-profile = "black"
-skip_gitignore = true
-extend_skip = [
-    ".autorc",
-    ".coverage*",
-    ".readthedocs.yml",
-    ".zenodo.json",
-    "codecov.yml",
-    "setup.py",
-    "versioneer.py",
-    "psylog/_version.py"
-]
-skip_glob = ["docs/*"]
-
 [tool.pydocstyle]
 convention = "numpy"
 match = "psylog/*.py"
