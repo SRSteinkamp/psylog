@@ -9,9 +9,9 @@ include = ["psylog*"]
 name = "psylog"
 dynamic = ["version"]
 authors = [
-    { name = "Simon R. Steinkamp", email= "rewardgym@mailbox.org" },
+    { name = "SRSteinkamp", email= "rewardgym@mailbox.org" },
     ]
-description = "psylog is a small library initially written to log PsychoPy fMRI experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
+description = "psylog is a small library initially written to log PsychoPy experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
