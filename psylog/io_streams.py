@@ -50,4 +50,3 @@ class DictLogOutput:
 
     def close(self) -> None:
         """Nothing to flush."""
-        pass

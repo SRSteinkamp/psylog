@@ -162,13 +162,9 @@ class ParentLogger:
                 "Description": c.description,
                 "LongName": c.long_name,
                 "Units": c.units,
-                **(
-                    {
-                        "Levels": {str(v): "" for v in c.validator.validator}
-                        if isinstance(c.validator.validator, (list, tuple, set))
-                        else {}
-                    }
-                ),
+                "Levels": {str(v): "" for v in c.validator.validator}
+                if isinstance(c.validator.validator, (list, tuple, set))
+                else {},
             }
             for c in self.categories
         }
