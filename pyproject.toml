@@ -80,6 +80,7 @@ quiet-level = 3
 [tool.ruff.lint.per-file-ignores]
 "psylog/tests/*" = ["E712"]
 "notebooks/*" = ["E402"]
+"psylog/io_streams.py" = ["SIM115"]
 
 [tool.ruff]
 exclude = [
