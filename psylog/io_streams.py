@@ -1,4 +1,4 @@
-from typing import Dict, List
+from __future__ import annotations
 
 
 class FileLogOutput:
@@ -9,12 +9,12 @@ class FileLogOutput:
         self.mode = mode
         self._file = None
 
-    def create(self, columns: List[str], sep: str) -> None:
+    def create(self, columns: list[str], sep: str) -> None:
         """Open the file and write the header line."""
         self._file = open(self.file_name, self.mode)
         self._file.write(sep.join(columns) + "\n")
 
-    def write_row(self, values: List[str], sep: str) -> None:
+    def write_row(self, values: list[str], sep: str) -> None:
         """Append one data row."""
         if self._file is None:
             raise FileNotFoundError("File does not exist!")
@@ -37,13 +37,13 @@ class DictLogOutput:
     """
 
     def __init__(self):
-        self.data: Dict[str, List[str]] = {}
+        self.data: dict[str, list[str]] = {}
 
-    def create(self, columns: List[str], sep: str) -> None:
+    def create(self, columns: list[str], sep: str) -> None:
         """Initialise an empty list for every column."""
         self.data = {col: [] for col in columns}
 
-    def write_row(self, values: List[str], sep: str) -> None:
+    def write_row(self, values: list[str], sep: str) -> None:
         """Append each value to its column's list."""
         for col, val in zip(self.data, values):
             self.data[col].append(val)

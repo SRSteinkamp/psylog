@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, Iterable, Type, Union
+from typing import Any, Callable, Iterable
 
 
 class LogMode(Enum):
@@ -23,7 +23,7 @@ class Validator:
 
     def __init__(
         self,
-        validator: Union[Type, Iterable, Callable, None] = None,
+        validator: type | Iterable | Callable | None = None,
         allow_na: bool = True,
     ):
         """
@@ -104,8 +104,8 @@ class CategoryConfig:
             )
         self.state = new_state
 
-    def to_bids_dict(self) -> Dict[str, Any]:
-        d: Dict[str, Any] = {
+    def to_bids_dict(self) -> dict[str, Any]:
+        d: dict[str, Any] = {
             "Description": self.description,
             "LongName": self.long_name,
             "Units": self.units,  # ← use the field the user set

@@ -22,7 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
 ]
-requires-python = ">= 3.8"
+requires-python = ">=3.8"
 
 dependencies = []
 
@@ -82,7 +82,17 @@ quiet-level = 3
 "notebooks/*" = ["E402"]
 
 [tool.ruff]
-exclude = []
+exclude = [
+    ".autorc",
+    ".coverage*",
+    ".readthedocs.yml",
+    ".zenodo.json",
+    "codecov.yml",
+    "setup.py",
+    "versioneer.py",
+    "psylog/_version.py"
+]
+target-version = "py38"
 
 [tool.versioneer]
 VCS = "git"

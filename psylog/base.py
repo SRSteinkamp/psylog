@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable
 
 from .io_streams import FileLogOutput
 from .log_schema import LogMode
@@ -32,8 +32,8 @@ class ParentLogger:
         na: str = "n/a",
         clock=None,
         trial_clock=None,
-        categories: Optional[List] = None,
-        static_columns: Optional[Dict] = None,
+        categories: list | None = None,
+        static_columns: dict | None = None,
         output=None,
     ):
         """
@@ -78,7 +78,7 @@ class ParentLogger:
         self.trial_clock = trial_clock
         self._trial_start = None
 
-    def log_event(self, info_dict: Dict, onset: float = None) -> None:
+    def log_event(self, info_dict: dict, onset: float | None = None) -> None:
         """
         Log an event with proper BIDS categories.
 
@@ -155,7 +155,7 @@ class ParentLogger:
         """Set trial start time."""
         self._trial_start = self.get_time()
 
-    def get_bids_sidecar(self) -> Dict:
+    def get_bids_sidecar(self) -> dict:
         """Generate BIDS sidecar metadata."""
         return {
             c.name: {
@@ -237,8 +237,8 @@ class PsychoPyLogger(ParentLogger):
         trial_clock=None,
         sep: str = "\t",
         na: str = "n/a",
-        categories: Optional[List] = None,
-        static_columns: Optional[Dict] = None,
+        categories: list | None = None,
+        static_columns: dict | None = None,
     ):
         if categories is None:
             self.categories = get_mandatory_bids_events()
@@ -262,7 +262,7 @@ class PsychoPyLogger(ParentLogger):
         # Create the file (writes header)
         self.create()
 
-    def start_trial(self, trial_number: int = None):
+    def start_trial(self, trial_number: int | None = None):
         """
         Start a new trial.
 
