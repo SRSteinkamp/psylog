@@ -1,3 +1,15 @@
+# 0.0.4 (Wed Oct 28 2026)
+
+#### ⚠️ Pushed to `main`
+
+- fixed typo in toml ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### Authors: 1
+
+- SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+---
+
 # 0.0.3 (Wed Oct 28 2026)
 
 #### ⚠️ Pushed to `main`
