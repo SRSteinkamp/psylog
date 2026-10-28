@@ -1,3 +1,15 @@
+# 0.0.2 (Wed Oct 28 2026)
+
+#### Internal
+
+- More internals [#6](https://github.com/SRSteinkamp/psylog/pull/6) ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### Authors: 1
+
+- SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+---
+
 # 0.0.1 (Wed Oct 28 2026)
 
 :tada: This release contains work from a new contributor! :tada:
