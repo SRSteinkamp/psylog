@@ -13,8 +13,7 @@ authors = [
     ]
 description = "psylog is a small library initially written to log PsychoPy experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
 readme = "README.md"
-license = "Apache-2.0"
-license-files = ["LICENSE"]
+license = { file = "LICENSE" }
 
 classifiers = [
     "Development Status :: 3 - Alpha",
