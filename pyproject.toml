@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 30.0.3", "versioneer == 0.29"]
+requires = ["setuptools >=75.3.4", "versioneer == 0.29"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -13,17 +13,14 @@ authors = [
     ]
 description = "psylog is a small library initially written to log PsychoPy experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
 readme = "README.md"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
+
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intendend Audience :: Research/Science",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
 ]
 requires-python = ">=3.8"
-
 dependencies = []
 
 [project.optional-dependencies]
@@ -52,8 +49,8 @@ devtools = [
 dev = ["psylog[devtools,doc,test]"]
 
 [project.urls]
-Documentation = "https://github.com/SRSteinkamp/psylog"
 Source = "https://github.com/SRSteinkamp/psylog"
+Issues = "https://github.com/SRSteinkamp/psylog/issues"
 
 [project.scripts]
 
