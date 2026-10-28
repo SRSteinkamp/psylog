@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >=77.0.3", "versioneer == 0.29"]
+requires = ["setuptools >=75.3.4", "versioneer == 0.29"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
