@@ -9,9 +9,9 @@ include = ["psylog*"]
 name = "psylog"
 dynamic = ["version"]
 authors = [
-    { name = "Simon R. Steinkamp", email= "rewardgym@mailbox.org" },
+    { name = "SRSteinkamp", email= "rewardgym@mailbox.org" },
     ]
-description = "psylog is a small library initially written to log PsychoPy fMRI experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
+description = "psylog is a small library initially written to log PsychoPy experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
@@ -22,7 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
 ]
-requires-python = ">= 3.8"
+requires-python = ">=3.8"
 
 dependencies = []
 
@@ -36,7 +36,6 @@ doc = [
 ]
 style = [
     "ruff",
-    "isort",
     "pydocstyle",
     "codespell"
 ]
@@ -66,21 +65,6 @@ addopts = [
     "-rx"
 ]
 
-[tool.isort]
-profile = "black"
-skip_gitignore = true
-extend_skip = [
-    ".autorc",
-    ".coverage*",
-    ".readthedocs.yml",
-    ".zenodo.json",
-    "codecov.yml",
-    "setup.py",
-    "versioneer.py",
-    "psylog/_version.py"
-]
-skip_glob = ["docs/*"]
-
 [tool.pydocstyle]
 convention = "numpy"
 match = "psylog/*.py"
@@ -96,9 +80,20 @@ quiet-level = 3
 [tool.ruff.lint.per-file-ignores]
 "psylog/tests/*" = ["E712"]
 "notebooks/*" = ["E402"]
+"psylog/io_streams.py" = ["SIM115"]
 
 [tool.ruff]
-exclude = ["psylog/tasks/*/*"]
+exclude = [
+    ".autorc",
+    ".coverage*",
+    ".readthedocs.yml",
+    ".zenodo.json",
+    "codecov.yml",
+    "setup.py",
+    "versioneer.py",
+    "psylog/_version.py"
+]
+target-version = "py38"
 
 [tool.versioneer]
 VCS = "git"

@@ -1,13 +1,15 @@
-from typing import Any, Dict, List
+from __future__ import annotations
+
+from typing import Any
 
 from .log_schema import CategoryConfig, LogMode, Validator
 
 
 def create_static_fields(
-    field_values: Dict[str, Any],
+    field_values: dict[str, Any],
     description_template: str = "Static field: {}",
     units: str = "n/a",
-) -> List[CategoryConfig]:
+) -> list[CategoryConfig]:
     """
     Creates static fields using a dictionary.
 
@@ -48,7 +50,7 @@ def get_mandatory_bids_events(
     duration_description: str = "Event duration",
     trial_type_description: str = "The name of the event",
     trial_type_units: str = "n/a",
-) -> List[CategoryConfig]:
+) -> list[CategoryConfig]:
     """
     Create minimal BIDS-compliant event categories with sensible defaults.
 
@@ -96,7 +98,7 @@ def get_mandatory_bids_events(
     ]
 
 
-def get_psychopy_fields() -> List[CategoryConfig]:
+def get_psychopy_fields() -> list[CategoryConfig]:
     """
     Create minimal BIDS-compliant event categories with sensible defaults.
 
