@@ -17,9 +17,10 @@ license = { file = "LICENSE" }
 
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Intendend Audience :: Research/Science",
+    "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3 :: Only",
 ]
+
 requires-python = ">=3.8"
 dependencies = []
 
