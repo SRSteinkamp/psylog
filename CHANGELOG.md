@@ -1,3 +1,24 @@
+# 0.0.1 (Wed Oct 28 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp)), for all your work!
+
+#### Bug Fix / Patch
+
+- updated auto rc and added labels via github command line [#5](https://github.com/SRSteinkamp/psylog/pull/5) ([@SRSteinkamp](https://github.com/SRSteinkamp))
+- Preparing publishing [#4](https://github.com/SRSteinkamp/psylog/pull/4) ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### ⚠️ Pushed to `main`
+
+- adding files ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### Authors: 1
+
+- SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+---
+
 # 0.0.2 (Mon Oct 26 2026)
 
 #### 🐛 Bug Fix
