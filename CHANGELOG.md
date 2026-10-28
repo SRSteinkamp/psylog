@@ -1,3 +1,15 @@
+# 0.0.3 (Wed Oct 28 2026)
+
+#### ⚠️ Pushed to `main`
+
+- updated auto release yet again. ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### Authors: 1
+
+- SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+---
+
 # 0.0.2 (Wed Oct 28 2026)
 
 #### Internal
