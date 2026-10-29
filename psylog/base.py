@@ -13,16 +13,19 @@ from .schema_helper import (
 
 
 class SystemClock:
-    """Default clock using Python's time module"""
+    """
+    Simple Clock not really intended for use in experiments.
+    But I does the trick for testing etc.
+    """
 
     def getTime(self) -> float:
         return time.time()
 
 
-class ParentLogger:
+class BaseLogger:
     """
-    Minimal BIDS-compliant logger parent class.
-    Contains only the essential categories required by BIDS specification.
+    BaseLogger class, should take care of most basic logging and be useful
+    on its own for many kinds of studies and experiments.
     """
 
     def __init__(
@@ -224,9 +227,9 @@ class ParentLogger:
         return self.na
 
 
-class PsychoPyLogger(ParentLogger):
+class PsychoPyLogger(BaseLogger):
     """
-    PsychoPy-specific logger that extends ParentLogger with PsychoPy-specific functionality.
+    PsychoPy-specific logger that extends BaseLogger with PsychoPy-specific functionality.
     Tracks trial number, trial onsets, and integrates with PsychoPy's Clock.
     """
 
@@ -244,7 +247,7 @@ class PsychoPyLogger(ParentLogger):
             self.categories = get_mandatory_bids_events()
             self.categories += get_psychopy_fields()
 
-        # Initialize ParentLogger
+        # Initialize BaseLogger
         super().__init__(
             file_name=file_name,
             sep=sep,
