@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import time
 import warnings
 from _collections_abc import Any, Callable
 from pathlib import Path
-from typing import Protocol
 
-from .io_streams import DictLogOutput, FileLogOutput, LogOutput
+from .interfaces import ClockInterface, DictLogOutput, FileLogOutput, LogOutput, SystemClock
 from .log_schema import CategoryConfig
 from .log_utils import add_logging_info, create_default_dictionary, handle_onsets, update_state_categories
 from .schema_helper import (
@@ -14,25 +12,6 @@ from .schema_helper import (
     get_mandatory_bids_events,
     get_psychopy_fields,
 )
-
-
-class ClockInterface(Protocol):
-    """
-    Protocol for the implementation of clocks. The logger requires as
-    getTime() method for time logging. It should return a float or int.
-    """
-
-    def getTime(self) -> float | int: ...
-
-
-class SystemClock(ClockInterface):
-    """
-    Simple Clock not really intended for use in experiments.
-    But I does the trick for testing etc.
-    """
-
-    def getTime(self) -> float:
-        return time.time()
 
 
 class BaseLogger:

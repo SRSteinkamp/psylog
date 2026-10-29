@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Protocol
 
 
@@ -63,3 +64,23 @@ class DictLogOutput(LogOutput):
 
     def close(self) -> None:
         """Nothing to flush."""
+
+
+class ClockInterface(Protocol):
+    """
+    Protocol for the implementation of clocks. The logger requires as
+    getTime() method for time logging. It should return a float or int.
+    """
+
+    def getTime(self) -> float | int: ...
+
+
+class SystemClock(ClockInterface):
+    """
+    Simple Clock not really intended for use in experiments.
+    But I does the trick for testing etc.
+    """
+
+    def getTime(self) -> float:
+        return time.time()
+
