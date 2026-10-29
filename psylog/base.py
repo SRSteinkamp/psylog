@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import time
 from _collections_abc import Any, Callable
+from pathlib import Path
+from typing import Protocol
 
-from .io_streams import FileLogOutput
+from .io_streams import FileLogOutput, LogOutput
 from .log_schema import LogMode
 from .schema_helper import (
     create_static_fields,
@@ -12,7 +14,16 @@ from .schema_helper import (
 )
 
 
-class SystemClock:
+class ClockInterface(Protocol):
+    """
+    Protocol for the implementation of clocks. The logger requires as
+    getTime() method for time logging. It should return a float or int.
+    """
+
+    def getTime(self) -> float | int: ...
+
+
+class SystemClock(ClockInterface):
     """
     Simple Clock not really intended for use in experiments.
     But I does the trick for testing etc.
@@ -30,27 +41,16 @@ class BaseLogger:
 
     def __init__(
         self,
-        file_name: str,
+        file_name: str | Path,
         sep: str = "\t",
         na: str = "n/a",
-        clock=None,
-        trial_clock=None,
+        clock: ClockInterface = None,
+        trial_clock: ClockInterface = None,
         categories: list | None = None,
         static_columns: dict | None = None,
-        output=None,
+        output: LogOutput | None = None,
     ):
-        """
-        Initialize minimal BIDS-compliant logger.
 
-        Parameters
-        ----------
-        file_name : str
-            Output file name
-        sep : str, optional
-            Column separator, by default "\t"
-        na : str, optional
-            Missing value representation, by default "n/a"
-        """
         self.file_name = file_name
         self.sep = sep
         self.na = na
@@ -235,9 +235,9 @@ class PsychoPyLogger(BaseLogger):
 
     def __init__(
         self,
-        file_name: str,
-        global_clock,
-        trial_clock=None,
+        file_name: str | Path,
+        global_clock: ClockInterface,
+        trial_clock: ClockInterface | None =None,
         sep: str = "\t",
         na: str = "n/a",
         categories: list | None = None,

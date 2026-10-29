@@ -1,7 +1,20 @@
 from __future__ import annotations
 
+from typing import Protocol
 
-class FileLogOutput:
+
+class LogOutput(Protocol):
+    """
+    Protocol for output streams.
+    """
+    def create(self, columns: list[str], sep: str) -> None: ...
+
+    def write_row(self, values: list[str], sep: str) -> None: ...
+
+    def close(self) -> None: ...
+
+
+class FileLogOutput(LogOutput):
     """Writes rows to a delimited text file on disk."""
 
     def __init__(self, file_name: str, mode: str = "w"):
@@ -28,12 +41,12 @@ class FileLogOutput:
             self._file = None
 
 
-class DictLogOutput:
+class DictLogOutput(LogOutput):
     """
     Accumulates rows in memory.
 
     After logging, ``.data`` is ``{column_name: [value, value, ...]}``
-    – one list per column, one entry per logged event.
+    - one list per column, one entry per logged event.
     """
 
     def __init__(self):
