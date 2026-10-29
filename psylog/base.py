@@ -78,9 +78,6 @@ class BaseLogger:
 
         self.categories_dict = {c.name: c for c in self.categories}
 
-        # Create nan dictionary
-        self.nan_dict = {c.name: self.na for c in self.categories}
-
         self.implied_handlers = {
             "onset": self._default_onset_handler,
             "trial_time": self._default_trial_time_handler,
