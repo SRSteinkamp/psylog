@@ -227,43 +227,43 @@ class BaseLogger:
             for c in self.categories
         }
 
+
 class PsychoPyLogger(BaseLogger):
     """
-    PsychoPy-specific logger that extends BaseLogger with PsychoPy-specific functionality.
-    Tracks trial number, trial onsets, and integrates with PsychoPy's Clock.
+    PsychoPy-specific logger that extends BaseLogger with PsychoPy-specific
+    functionality, including trial tracking and PsychoPy-specific categories.
     """
 
     def __init__(
         self,
-        file_name: str | Path,
-        global_clock: ClockInterface,
-        trial_clock: ClockInterface | None =None,
+        file_name: str | Path | None,
         sep: str = "\t",
         na: str = "n/a",
-        categories: list | None = None,
-        static_columns: dict | None = None,
-    ):
+        clock: ClockInterface | None = None,
+        trial_clock: ClockInterface | None = None,
+        categories: list[CategoryConfig] | None = None,
+        static_columns: dict[str, Any] | None = None,
+        output: LogOutput | None = None,
+    ) -> None:
         if categories is None:
-            self.categories = get_mandatory_bids_events()
-            self.categories += get_psychopy_fields()
+            categories = (
+                get_mandatory_bids_events()
+                + get_psychopy_fields()
+            )
 
-        # Initialize BaseLogger
         super().__init__(
             file_name=file_name,
             sep=sep,
             na=na,
+            clock=clock,
+            trial_clock=trial_clock,
             categories=categories,
             static_columns=static_columns,
-            clock=global_clock,
-            trial_clock=trial_clock,
+            output=output,
         )
 
-        # Experiment parameters
         self.current_trial = -1
         self._trial_start = None
-
-        # Create the file (writes header)
-        self.create()
 
     def start_trial(self, trial_number: int | None = None):
         """
