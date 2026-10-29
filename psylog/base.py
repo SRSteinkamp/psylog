@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import time
+import warnings
 from _collections_abc import Any, Callable
 from pathlib import Path
 from typing import Protocol
 
-from .io_streams import FileLogOutput, LogOutput
-from .log_schema import LogMode
+from .io_streams import DictLogOutput, FileLogOutput, LogOutput
+from .log_schema import CategoryConfig, LogMode
 from .schema_helper import (
     create_static_fields,
     get_mandatory_bids_events,
@@ -38,18 +39,48 @@ class BaseLogger:
     BaseLogger class, should take care of most basic logging and be useful
     on its own for many kinds of studies and experiments.
     """
-
     def __init__(
         self,
-        file_name: str | Path,
+        file_name: str | Path | None,
         sep: str = "\t",
         na: str = "n/a",
         clock: ClockInterface = None,
         trial_clock: ClockInterface = None,
-        categories: list | None = None,
-        static_columns: dict | None = None,
+        categories: list[CategoryConfig] | None = None,
+        static_columns: dict[str: Any] | None = None,
         output: LogOutput | None = None,
     ):
+        """
+        BaseLogger Class.
+
+        Parameters
+        ----------
+        file_name : str | Path | None
+            The output path to the file. Can be None, then a DictLogOutput
+            logger will be used, if a file_name is provided, a FileLogOutput
+            instance will be create. If a LogOutput class is provided,
+            file_name will be ignored.
+        sep : str, optional
+            Separator for the logfile, by default "\t", will be ignored when
+            output is provided.
+        na : str, optional
+            The "na" value in the output file, by default "n/a", will be ignored
+            when output is provided.
+        clock : ClockInterface, optional
+            The clock that is used in the experiment, can ideally be reset to the
+            start of the experiment, by default None and a SystemClock will be
+            created.
+        trial_clock : ClockInterface, optional
+            Optional clock that can be reset a trial start using set_trial_start, by default None,
+            i.e. the logger clock will be used.
+        categories : list[CategoryConfig] | None, optional
+            List of logging categories, by default None, uses BIDS defaults
+            (onset, duration, trial_type).
+        static_columns : dict | None, optional
+            A dictionary of columns with static values, e.g., participant_id etc. By default None
+        output : LogOutput | None, optional
+            A OutputLog class if provided, will overwrite file_name. By default None
+        """
 
         self.file_name = file_name
         self.sep = sep
@@ -76,12 +107,20 @@ class BaseLogger:
         }
 
         # Initialize file state
-        self._output = output if output is not None else FileLogOutput(file_name)
+        if output is None:
+            if file_name is None:
+                self._output = DictLogOutput()
+            else:
+                self._output = FileLogOutput(file_name=file_name)
+        else:
+            warnings.warn("Output has been provided. Ignoring file_name input.")
+            self._output = output
 
         self.trial_clock = trial_clock
         self._trial_start = None
 
     def log_event(self, info_dict: dict, onset: float | None = None) -> None:
+
         """
         Log an event with proper BIDS categories.
 
