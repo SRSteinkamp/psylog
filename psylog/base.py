@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Protocol
 
 from .io_streams import DictLogOutput, FileLogOutput, LogOutput
-from .log_schema import CategoryConfig, LogMode
+from .log_schema import CategoryConfig
+from .log_utils import add_logging_info, create_default_dictionary, handle_onsets, update_state_categories
 from .schema_helper import (
     create_static_fields,
     get_mandatory_bids_events,
@@ -129,53 +130,27 @@ class BaseLogger:
         info_dict : Dict
             Dictionary of category values
         onset : float, optional
-            Event onset time (overrides automatic), by default None
+            Event onset time (overrides automatic event and calculates duration), by default None
         """
+
         # Validate all keys exist
         unknown = set(info_dict) - set(self.categories_dict)
         if unknown:
             raise ValueError(f"Unknown categories: {unknown}")
 
         # Update state for STATE-mode categories BEFORE creating temp_dict
-        if info_dict is not None:
-            for key, value in info_dict.items():
-                category = self.categories_dict[key]
-                if category.mode == LogMode.STATE:
-                    category.set_state(value)
+        update_state_categories(info_dict, self.categories_dict)
 
         # Create base dictionary with default values
-        tmp_dict = {}
-        for c in self.categories:
-            if c.mode == LogMode.IMPLIED:
-                handler = self.implied_handlers.get(c.name)
-                tmp_dict[c.name] = handler() if handler else self.na
-            elif c.mode in (LogMode.STATE, LogMode.STATIC):
-                tmp_dict[c.name] = c.state
-            else:
-                tmp_dict[c.name] = self.na
-
+        tmp_dict = create_default_dictionary(categories=self.categories,
+                                             implied_handlers=self.implied_handlers,
+                                             na_value=self.na)
         # Handle custom onset and calculate duration if needed
-        if onset is not None:
-            if onset <= tmp_dict.get("onset", float("inf")):
-                # Calculate duration if we're overriding onset
-                if "onset" in tmp_dict and "duration" in tmp_dict:
-                    tmp_dict["duration"] = tmp_dict["onset"] - onset
-                tmp_dict["onset"] = onset
-            else:
-                raise ValueError(
-                    "User defined onset needs to be before automatic onset!"
-                )
+        tmp_dict = handle_onsets(onset, tmp_dict)
 
         # Update with provided values - special handling for EVENT mode
-        for key, value in info_dict.items():
-            if value is not None:
-                category = self.categories_dict[key]
-                if not category.validator.validate(value):
-                    raise ValueError(f"Invalid value {value!r} for {key}")
+        tmp_dict = add_logging_info(tmp_dict=tmp_dict, info_dict=info_dict, categories_dict=self.categories_dict)
 
-                # For EVENT mode, use the provided value directly
-                if category.mode == LogMode.EVENT:
-                    tmp_dict[key] = value
         # Write to file
         self._output.write_row(
             [str(tmp_dict[c.name]) for c in self.categories], self.sep
