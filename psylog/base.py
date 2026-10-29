@@ -138,6 +138,12 @@ class BaseLogger:
         if unknown:
             raise ValueError(f"Unknown categories: {unknown}")
 
+        if onset is not None and "onset" in info_dict:
+            warnings.warn("Onset is present in both info_dict and provided as argument. This will lead to unintended" \
+            "consequences!")
+        elif "onset" in info_dict:
+            warnings.warn("Onset has been provided in info_dict, which will override default onset handling!")
+
         # Update state for STATE-mode categories BEFORE creating temp_dict
         update_state_categories(info_dict, self.categories_dict)
 
@@ -172,23 +178,6 @@ class BaseLogger:
         """Set trial start time."""
         self._trial_start = self.get_time()
 
-    def get_bids_sidecar(self) -> dict:
-        """Generate BIDS sidecar metadata."""
-        return {
-            c.name: {
-                "Description": c.description,
-                "LongName": c.long_name,
-                "Units": c.units,
-                "Levels": {str(v): "" for v in c.validator.validator}
-                if isinstance(c.validator.validator, (list, tuple, set))
-                else {},
-            }
-            for c in self.categories
-        }
-
-    def _default_onset_handler(self) -> float:
-        """Simple handler for onset times"""
-        return self.get_time()
 
     def get_trial_time(self):
         if hasattr(self, "trial_clock") and self.trial_clock is not None:
@@ -197,15 +186,6 @@ class BaseLogger:
             return self.get_time() - self._trial_start
         else:
             return None
-
-    def _default_trial_time_handler(self) -> float:
-        """Simple handler for trial time"""
-        current_trial_time = self.get_trial_time()
-
-        if current_trial_time is None:
-            return self.na
-        else:
-            return current_trial_time
 
     def add_implied_handler(
         self, category_name: str, handler_func: Callable[[], Any]
@@ -240,6 +220,32 @@ class BaseLogger:
             return self.implied_handlers[category_name]()
         return self.na
 
+    def _default_onset_handler(self) -> float:
+        """Simple handler for onset times"""
+        return self.get_time()
+
+    def _default_trial_time_handler(self) -> float:
+        """Simple handler for trial time"""
+        current_trial_time = self.get_trial_time()
+
+        if current_trial_time is None:
+            return self.na
+        else:
+            return current_trial_time
+
+    def get_bids_sidecar(self) -> dict:
+        """Generate BIDS sidecar metadata."""
+        return {
+            c.name: {
+                "Description": c.description,
+                "LongName": c.long_name,
+                "Units": c.units,
+                "Levels": {str(v): "" for v in c.validator.validator}
+                if isinstance(c.validator.validator, (list, tuple, set))
+                else {},
+            }
+            for c in self.categories
+        }
 
 class PsychoPyLogger(BaseLogger):
     """
