@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable
+from _collections_abc import Any, Callable
 
 from .io_streams import FileLogOutput
 from .log_schema import LogMode
