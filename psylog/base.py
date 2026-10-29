@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from _collections_abc import Any, Callable
+from collections.abc import Any, Callable
 from pathlib import Path
 
 from .interfaces import ClockInterface, DictLogOutput, FileLogOutput, LogOutput, SystemClock
@@ -158,13 +158,14 @@ class BaseLogger:
         self._trial_start = self.get_time()
 
 
-    def get_trial_time(self):
-        if hasattr(self, "trial_clock") and self.trial_clock is not None:
+    def get_trial_time(self) -> float | None:
+        if self.trial_clock is not None:
             return self.trial_clock.getTime()
-        elif hasattr(self, "_trial_start") and self._trial_start is not None:
+
+        if self._trial_start is not None:
             return self.get_time() - self._trial_start
-        else:
-            return None
+
+        return None
 
     def add_implied_handler(
         self, category_name: str, handler_func: Callable[[], Any]

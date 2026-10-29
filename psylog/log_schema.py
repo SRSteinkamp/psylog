@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from _collections_abc import Any, Callable, Iterable
+from collections.abc import Any, Callable, Iterable
 from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
