@@ -77,7 +77,6 @@ PPL = PsychoPyLogger(
 )
 
 # The logger needs to be created to write the file and add the column header
-
 PPL.create()
 ```
 
