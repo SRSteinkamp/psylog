@@ -1,3 +1,7 @@
+import math
+from numbers import Real
+from typing import Any
+
 from .log_schema import LogMode
 
 
@@ -62,3 +66,14 @@ def add_logging_info(tmp_dict: dict, info_dict: dict, categories_dict: dict) -> 
                 tmp_dict[key] = value
 
     return tmp_dict
+
+
+def serialize_value(value: Any, na: str = "n/a") -> str:
+    """Serialize a value for a BIDS-compatible TSV file."""
+    if value is None:
+        return na
+
+    if isinstance(value, Real) and math.isnan(value):
+        return na
+
+    return str(value)

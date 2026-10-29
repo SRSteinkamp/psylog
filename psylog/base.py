@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .interfaces import ClockInterface, DictLogOutput, FileLogOutput, LogOutput, SystemClock
 from .log_schema import CategoryConfig
-from .log_utils import add_logging_info, create_default_dictionary, handle_onsets, update_state_categories
+from .log_utils import add_logging_info, create_default_dictionary, handle_onsets, serialize_value, update_state_categories
 from .schema_helper import (
     create_static_fields,
     get_mandatory_bids_events,
@@ -138,7 +138,7 @@ class BaseLogger:
 
         # Write to file
         self._output.write_row(
-            [str(tmp_dict[c.name]) for c in self.categories], self.sep
+            [serialize_value(tmp_dict[c.name], self.na) for c in self.categories], self.sep
         )
 
     def get_time(self) -> float:
