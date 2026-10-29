@@ -74,7 +74,12 @@ class BaseLogger:
             self.categories = categories
 
         if static_columns is not None:
-            self.categories = self.categories + create_static_fields(static_columns)
+            self.categories.extend(create_static_fields(static_columns))
+
+        names = [category.name for category in self.categories]
+
+        if len(names) != len(set(names)):
+            raise ValueError("Category names must be unique")
 
         self.categories_dict = {c.name: c for c in self.categories}
 
