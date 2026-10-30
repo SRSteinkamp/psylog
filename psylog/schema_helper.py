@@ -119,23 +119,13 @@ def get_mandatory_bids_events(
 
 def get_psychopy_fields() -> list[CategoryConfig]:
     """
-    Create minimal BIDS-compliant event categories with sensible defaults.
+    Returns CategoryConfig defaults for the PsychoPy logger.
 
-    Parameters
-    ----------
-    onset_units : str, optional
-        Units for onset times, by default "seconds"
-    duration_units : str, optional
-        Units for durations, by default "seconds"
-    onset_description : str, optional
-        Description for onset category, by default "Event onset time"
-    duration_description : str, optional
-        Description for duration category, by default "Event duration"
 
     Returns
     -------
-    List[CategoryConfig]
-        List containing onset and duration categories
+    list[CategoryConfig]
+        Default configs for 'response_time', 'response_button', 'trial', 'trial_time'.
     """
     return [
         CategoryConfig(
