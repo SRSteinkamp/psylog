@@ -152,3 +152,5 @@ The two models that were used were Qwen3.8 27B and Mistrall Small 4 119B 2603.
 
 Initial code already existend and was expanded. Some of the original code used
 Chat-GPT in the creation process.
+
+Chat-GPT and AI models above were also used to create the tests for this package.
