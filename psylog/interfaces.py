@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 from typing import Protocol
-
+from pathlib import Path
 
 class LogOutput(Protocol):
     """
@@ -18,14 +18,14 @@ class LogOutput(Protocol):
 class FileLogOutput(LogOutput):
     """Writes rows to a delimited text file on disk."""
 
-    def __init__(self, file_name: str, mode: str = "w"):
-        self.file_name = file_name
+    def __init__(self, file_name: str | Path, mode: str = "w"):
+        self.file_name = Path(file_name)
         self.mode = mode
         self._file = None
 
     def create(self, columns: list[str], sep: str) -> None:
         """Open the file and write the header line."""
-        self._file = open(self.file_name, self.mode)
+        self._file = self.file_name.open(self.mode, encoding="utf-8",)
         self._file.write(sep.join(columns) + "\n")
 
     def write_row(self, values: list[str], sep: str) -> None:
