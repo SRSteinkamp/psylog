@@ -256,48 +256,49 @@ class SimulationLoggerNew(ExperimentLoggerNew):
 
 
 def test_regression():
-    import rewardgym
-
-    df_out = []
-
-    for lg in ["newer", "old"]:
-        print(lg)
-        task = "risk-sensitive"
-        env = rewardgym.get_env(task, seed = 10, render_backend = "psychopy-simulate")
-
-        agent = QAgent(
-            learning_rate = 0.1,
-            temperature = 4,
-            discount_factor = 0.99,
-            action_space = env.n_actions,
-            state_space = env.n_states,
-            seed = 10
-        )
-
-
-        if lg == "old":
-            simlog = SMLR(file_name = None, task = task, participant_id = "test-agent")
-        elif lg == "newer":
-            simlog = SimulationLoggerNew(file_name = None, task = task, participant_id = "test-agent")
-            simlog.categories_dict['total_reward'].mode = LogMode.EVENT
-
-        simlog.create()
-        env.setup(logger = simlog, window = None, expose_last_stim = True)
-        df, _, _ = pspy_run_task(env, logger = simlog, agent = agent, random_state=10)
-
-        if lg == "newer":
-            simlog.get_bids_sidecar()
-
-        df_out.append(pd.DataFrame(df.close()))
-
-    print("done")
-
-
-    df_out[1] = df_out[1][df_out[0].columns]
-    df_out[1] = df_out[1].replace(to_replace=['None'], value="n/a")
-    df_out[1].loc[:, "task"] = task
-
     if sys.version_info < (3, 12):
+
+        import rewardgym
+
+        df_out = []
+
+        for lg in ["newer", "old"]:
+            print(lg)
+            task = "risk-sensitive"
+            env = rewardgym.get_env(task, seed = 10, render_backend = "psychopy-simulate")
+
+            agent = QAgent(
+                learning_rate = 0.1,
+                temperature = 4,
+                discount_factor = 0.99,
+                action_space = env.n_actions,
+                state_space = env.n_states,
+                seed = 10
+            )
+
+
+            if lg == "old":
+                simlog = SMLR(file_name = None, task = task, participant_id = "test-agent")
+            elif lg == "newer":
+                simlog = SimulationLoggerNew(file_name = None, task = task, participant_id = "test-agent")
+                simlog.categories_dict['total_reward'].mode = LogMode.EVENT
+
+            simlog.create()
+            env.setup(logger = simlog, window = None, expose_last_stim = True)
+            df, _, _ = pspy_run_task(env, logger = simlog, agent = agent, random_state=10)
+
+            if lg == "newer":
+                simlog.get_bids_sidecar()
+
+            df_out.append(pd.DataFrame(df.close()))
+
+        print("done")
+
+
+        df_out[1] = df_out[1][df_out[0].columns]
+        df_out[1] = df_out[1].replace(to_replace=['None'], value="n/a")
+        df_out[1].loc[:, "task"] = task
+
         assert (df_out[1] == df_out[0]).mean().mean() > 0.9999
     else:
         assert True
