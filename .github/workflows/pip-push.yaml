@@ -25,7 +25,7 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
       - name: Install
-        run: pip install -e '.[test]'
+        run: pip install -e '.[test,regression]'
       - name: Lint with ruff
         run: |
           ruff check .
