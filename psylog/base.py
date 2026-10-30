@@ -129,7 +129,7 @@ class BaseLogger:
         update_state_categories(info_dict, self.categories_dict)
 
         # Create base dictionary with default values
-        tmp_dict = create_default_dictionary(categories=self.categories,
+        tmp_dict = create_default_dictionary(self, categories=self.categories_dict,
                                              implied_handlers=self.implied_handlers,
                                              na_value=self.na)
         # Handle custom onset and calculate duration if needed

@@ -22,17 +22,17 @@ def update_state_categories(info_dict: dict, categories_dict: dict) -> None:
             if category.mode == LogMode.STATE:
                 category.set_state(value)
 
-def create_default_dictionary(categories: dict, implied_handlers: dict, na_value: str) -> dict:
+def create_default_dictionary(logger, categories: dict, implied_handlers: dict, na_value: str) -> dict:
 
     tmp_dict = {}
-    for c in categories:
-        if c.mode == LogMode.IMPLIED:
-            handler = implied_handlers.get(c.name)
-            tmp_dict[c.name] = handler() if handler else na_value
-        elif c.mode in (LogMode.STATE, LogMode.STATIC):
-            tmp_dict[c.name] = c.state
+    for cname, cat in categories.items():
+        if cat.mode == LogMode.IMPLIED:
+            handler = implied_handlers.get(cname)
+            tmp_dict[cname] = handler(logger, cat) if handler else na_value
+        elif cat.mode in (LogMode.STATE, LogMode.STATIC):
+            tmp_dict[cname] = cat.state
         else:
-            tmp_dict[c.name] = na_value
+            tmp_dict[cname] = na_value
 
     return tmp_dict
 

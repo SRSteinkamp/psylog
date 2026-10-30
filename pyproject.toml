@@ -43,11 +43,15 @@ test = [
     "pytest-cov",
     "coverage"
 ]
+regression =[
+    "old-logger @ git+https://github.com/rewardMap/rewardGym/.git@v0.6.1",
+    "pandas"
+]
 devtools = [
     "pre-commit",
     "jupyter"
 ]
-dev = ["psylog[devtools,doc,test]"]
+dev = ["psylog[devtools,doc,test,regression]"]
 
 [project.urls]
 Source = "https://github.com/SRSteinkamp/psylog"
