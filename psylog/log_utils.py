@@ -58,12 +58,13 @@ def add_logging_info(tmp_dict: dict, info_dict: dict, categories_dict: dict) -> 
     for key, value in info_dict.items():
         if value is not None:
             category = categories_dict[key]
-            if not category.validator.validate(value):
+            if not category.validate(value):
                 raise ValueError(f"Invalid value {value!r} for {key}")
 
             # For EVENT mode, use the provided value directly
             if category.mode == LogMode.EVENT:
                 tmp_dict[key] = value
+                category.record_value(value)
 
     return tmp_dict
 

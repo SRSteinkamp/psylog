@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .log_schema import CategoryConfig, LogMode, Validator
+from .log_schema import CategoryConfig, LogMode
 
 
 def validate_and_build_categories(
@@ -56,9 +56,6 @@ def create_static_fields(
             mode=LogMode.STATIC,
             description=description_template.format(name),
             units=units,
-            validator=Validator(type(value))
-            if not isinstance(value, (str, int, float))
-            else None,
         )
         for name, value in field_values.items()
     ]
@@ -98,7 +95,7 @@ def get_mandatory_bids_events(
             mode=LogMode.IMPLIED,
             description=onset_description,
             units=onset_units,
-            validator=Validator(float),
+            data_type=(int, float),
         ),
         CategoryConfig(
             name="duration",
@@ -106,7 +103,7 @@ def get_mandatory_bids_events(
             mode=LogMode.IMPLIED,
             description=duration_description,
             units=duration_units,
-            validator=Validator(float),
+            data_type=(int, float),
         ),
         CategoryConfig(
             name="trial_type",
@@ -114,7 +111,8 @@ def get_mandatory_bids_events(
             mode=LogMode.EVENT,
             description=trial_type_description,
             units=trial_type_units,
-            validator=Validator(str),
+            collect_levels=True,
+            data_type=str,
         ),
     ]
 
@@ -146,7 +144,7 @@ def get_psychopy_fields() -> list[CategoryConfig]:
             mode=LogMode.EVENT,
             description="Response time",
             units="seconds",
-            validator=Validator(float),
+            data_type=(int, float),
         ),
         CategoryConfig(
             name="response_button",
@@ -154,7 +152,8 @@ def get_psychopy_fields() -> list[CategoryConfig]:
             mode=LogMode.EVENT,
             description="The response button being pressed.",
             units="n/a",
-            validator=None,
+            data_type=(str),
+            collect_levels=True
         ),
         CategoryConfig(
             name="trial",
@@ -162,7 +161,7 @@ def get_psychopy_fields() -> list[CategoryConfig]:
             mode=LogMode.STATE,
             description="The running trial number",
             units="trials",
-            validator=Validator(int),
+            data_type=(int, float)
         ),
         CategoryConfig(
             name="trial_time",
@@ -170,6 +169,6 @@ def get_psychopy_fields() -> list[CategoryConfig]:
             mode=LogMode.IMPLIED,
             description="The running time since trial start.",
             units="seconds",
-            validator=Validator(float),
+            data_type=(int, float),
         ),
     ]
