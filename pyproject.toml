@@ -44,7 +44,7 @@ test = [
     "coverage"
 ]
 regression =[
-    "rewardgym @ git+https://github.com/rewardMap/rewardGym.git",
+    "rewardgym @ git+https://github.com/rewardMap/rewardGym.git@d7efa32d749ec5d030ca5548c223d337d82cd3c3",
     "pandas"
 ]
 devtools = [
