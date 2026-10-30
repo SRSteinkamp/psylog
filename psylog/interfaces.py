@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
+
 @runtime_checkable
 class LogOutput(Protocol):
     """
