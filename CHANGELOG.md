@@ -1,3 +1,15 @@
+# 0.1.0 (Fri Oct 30 2026)
+
+#### Breaking Change during development
+
+- Rewriting, Refractoring, Improving [#7](https://github.com/SRSteinkamp/psylog/pull/7) ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### Authors: 1
+
+- SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+---
+
 # 0.0.4 (Wed Oct 28 2026)
 
 #### ⚠️ Pushed to `main`
