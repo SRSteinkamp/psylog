@@ -1,86 +1,127 @@
 # psylog
 
-An attempt at writing generalized loggers, that work well for me.
+Is a flexibly extendable logging class to write the onsets of events in experiments
+in psychology or cognitive neuroscience to a file. 
 
-And maybe for you :)
+It tries to adhere to [BIDS](bids-specification.readthedocs.io/en/stable/) standards and is in large parts developed
+with users of [PsychoPy](https://psychopy.org/) in mind.
+
+| :warning: A note on timing   |
+|----------------------------------------------|
+| I haven't tested this implementation with regards to ms precision in timing. Be very careful and do your own assessments, when using these tools for e.g. EEG experimentation!|
+
+## Features
+
+* Flexible logging of events
+* On the fly calculation of reaction times
+* Outputs trying to adhere to the BIDS standard (defaults)
+* Has some input validation.
+* With a little extra effort can write an `events.json` sidecar.
+
+Enhancement plans:
+
+* fMRI trigger logging
+* Using `events.json` for proper data reading to pandas.
+* Proper validation and creation of logger from compatible `events.json`. 
+
+In a future release the logger will replaced logging in [rewardGym]|(https://github.com/rewardMap/rewardGym), a toolbox
+for experiments with humans in reinforcement learning. 
+
+## History:
+
+This project developed out of my wish / need to have a logger for experiments that works in a way 
+that I like. The basics of the logger have been developed already a couple of years ago and modified for each experiment individually. 
+
+For future experiments,  I wanted to avoid re-implementation and aimed at generalizing the syntax for other studies and
+create a proper package. 
+
+When I say experiments here, I am literally talking about experiments in **cognitive neuroscience** and **psychology**.
+So it deals mostly with cases where participants press buttons on the keyboard in response to something on a screen.
+
+Maybe you will find this useful. :)
 
 
-# AI Disclosure
+## Using psylog in PsychoPy Builder
 
-AI models hosted by Ki:connect have been used in the development.
-The two models that were used were Qwen3.8 27B and Mistrall Small 4 119B 2603.
+Add the package as a user specified package (i.e. pip install -e .) or install via pip.
 
-Initial code already existend and was expanded. Some of the original code used
-Chat-GPT in the creation process.
+### Set-up
 
+In the "BeginExp" tab you first have to initiated the logger. This example here 
+uses defaults. But it can be easily extended (see some of the other examples).
 
-# Example for logging and setting up in PsychoPy Builder
+The default columns, that should be always be in the logger are (BIDS defaults):
 
-Add the package as a user specified package (i.e. pip install -e .).
+* onset
+* duration
+* trial_type
+
+PsychoPy adds by default:
+
+* response_time
+* response_button
+* trial
+* trial_time
 
 ```python
-# In the BeginExp tab place something like this:
-# This creates a default logger with an extra "phase" state that logs
-# if it is a main or a training trial.
 
 from psylog import PsychoPyLogger
-from psylog.schema_helper import get_psychopy_fields, get_mandatory_bids_events
-from psylog.log_schema import LogMode, CategoryConfig
 
-categories = get_mandatory_bids_events() + get_psychopy_fields() + [CategoryConfig(name="phase", mode=LogMode.STATE, default="n/a")]
-
+# This instantiates the logger:
 PPL = PsychoPyLogger(
     file_name = f"sub-{expInfo['participant']}_task-{expName}_beh.tsv",
     global_clock = core.Clock(),
-    categories = categories,
     static_columns = {
     "participant": expInfo['participant'],
     "experiment": expName},
 )
 
+# The logger needs to be created to write the file and add the column header
 PPL.create()
 ```
 
-In the beginning of each trial, the trial
-can be set:
+### Starting a trial
+
+In the routine that starts your trial, I would recommend to call the `start_trial`
+method. Which resets the trial clock and if no argument is provided increases
+the internal trial counter by one.
 
 ```python
-# Overwrites the trial number (if None, it would increase by one and resets the clock of the current trial.)
+# Increases the trial "state" and uses PsychoPy trial handler (the loop here is called `trials`) to
+# to infer the trial number. 
 
 PPL.start_trial(trials.thisTrialN)
 
+# I also like to log the beginning of a trial explicitly.
 PPL.log_event(
-{"trial_type": f"trial-{tapping_duration}",
-"phase": phase}
+{"trial_type": f"trial-start"}
 )
+
 ```
 
-Again using some AI help - I managed to hopefully accurately trakc the on and offset of stimuli in the PsychoPy Builder:
+### Dynamically keeping track of stimuli
 
-In the BeginRoutine Tab:
+Using some AI help, I figured out (to hopefully accurately track) on and offsets of stimuli in PsychoPy Builder.
+
+First create information about all the stimuli that should be tracked in the "BeginnRoutine" tab.
+
 ```python
-# Define all stimulus names you want to track
-stimulus_names = ['task1_1', 'task1_2', 'task1_3', 'task2_1', 'task2_2','task2_3', 'task3', 'equals', 'then']
-stim_files = [t1_1_name, t1_2_name, t1_3_name,
-               t2_1_name, t2_2_name, t2_3_name,
-               t3_name, "equal", "then"]
-stimFile = {}
-c = 0
-for sn in stimulus_names:
-    stimFile[sn] = stim_files[c]
-    c+= 1
+# Define all stimulus names you want to track, in this example there are three audio stimuli, which might 
+# differ in length during the experiment. The names have to match the stimulus components in Builder.
+
+stimulus_names = ['sound1', 'sound2', 'sound3']
 
 # Initialize timing dictionary
 stimTiming = {}
 
 for name in stimulus_names:
-    stimTiming[name] = {"onset": None, "Offset": None}
+    stimTiming[name] = {"onset": None}
 
 # Track which stimuli are currently active (have started but not stopped)
 activeStims = set()
 ```
-
-And then basically poll for every frame if an onset and offset have occured:
+Then in the Each Frame tab you can basically poll for every frame if the 
+stimulus has started or ended.
 
 ```python
 # Check each stimulus for status changes
@@ -95,9 +136,21 @@ for stimName in stimulus_names:
             activeStims.add(stimName)
         elif stim.status != STARTED and stimName in activeStims:
             # Stimulus just stopped
-            PPL.log_event({"trial_type": stimName, "stim_file": stimFile[stimName]},
-            onset=stimTiming[stimName]['onset'])
-            # offset is not really needed
-            stimTiming[stimName]['offset'] = core.monotonicClock.getTime()
+            PPL.log_event({"trial_type": stimName, 
+                           "stim_file": stimFile[stimName]
+                           },
+                          onset=stimTiming[stimName]['onset'])
+
             activeStims.remove(stimName)
 ```
+
+
+## AI Disclosure
+
+AI models hosted by Ki:connect have been used in the development.
+The two models that were used were Qwen3.8 27B and Mistrall Small 4 119B 2603.
+
+Initial code already existend and was expanded. Some of the original code used
+Chat-GPT in the creation process.
+
+Chat-GPT and AI models above were also used to create the tests for this package.

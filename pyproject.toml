@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >=75.3.4", "versioneer == 0.29"]
+requires = ["setuptools >=84.2.1", "versioneer == 0.29"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -13,7 +13,7 @@ authors = [
     ]
 description = "psylog is a small library initially written to log PsychoPy experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
 readme = "README.md"
-license = { file = "LICENSE" }
+license-files = ["LICEN[CS]E*"]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -21,7 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
@@ -43,11 +43,15 @@ test = [
     "pytest-cov",
     "coverage"
 ]
+regression =[
+    "rewardgym @ git+https://github.com/rewardMap/rewardGym.git@d7efa32d749ec5d030ca5548c223d337d82cd3c3",
+    "pandas"
+]
 devtools = [
     "pre-commit",
     "jupyter"
 ]
-dev = ["psylog[devtools,doc,test]"]
+dev = ["psylog[devtools,doc,test,regression]"]
 
 [project.urls]
 Source = "https://github.com/SRSteinkamp/psylog"
@@ -91,7 +95,7 @@ exclude = [
     "versioneer.py",
     "psylog/_version.py"
 ]
-target-version = "py38"
+target-version = "py310"
 
 [tool.versioneer]
 VCS = "git"
