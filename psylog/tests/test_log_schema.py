@@ -2,7 +2,6 @@ import pytest
 
 from psylog.log_schema import CategoryConfig, LogMode
 
-
 # ==================================================
 # Initialization
 # ==================================================

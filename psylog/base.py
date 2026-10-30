@@ -4,10 +4,26 @@ import warnings
 from pathlib import Path
 from typing import Any
 
-from .interfaces import ClockInterface, DictLogOutput, FileLogOutput, LogOutput, SystemClock
-from .log_handler import ImpliedHandler, default_onset_handler, default_trial_time_handler
+from .interfaces import (
+    ClockInterface,
+    DictLogOutput,
+    FileLogOutput,
+    LogOutput,
+    SystemClock,
+)
+from .log_handler import (
+    ImpliedHandler,
+    default_onset_handler,
+    default_trial_time_handler,
+)
 from .log_schema import CategoryConfig, LogMode
-from .log_utils import add_logging_info, create_default_dictionary, handle_onsets, serialize_value, update_state_categories
+from .log_utils import (
+    add_logging_info,
+    create_default_dictionary,
+    handle_onsets,
+    serialize_value,
+    update_state_categories,
+)
 from .schema_helper import (
     create_static_fields,
     get_mandatory_bids_events,
@@ -21,7 +37,6 @@ class BaseLogger:
     BaseLogger class, should take care of most basic logging and be useful
     on its own for many kinds of studies and experiments.
     """
-    MANDATORY_CATEGORIES = {"onset", "duration"} # I think these are used for implied calculations.
 
     def __init__(
         self,
@@ -65,6 +80,7 @@ class BaseLogger:
         output : LogOutput | None, optional
             A OutputLog class if provided, will overwrite file_name. By default None
         """
+        self.MANDATORY_CATEGORIES = {"onset", "duration"} # I think these are used for implied calculations.
 
         self.file_name = file_name
         self.sep = sep

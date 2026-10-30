@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import time
-from typing import Protocol
 from pathlib import Path
+from typing import Protocol
+
 
 class LogOutput(Protocol):
     """
