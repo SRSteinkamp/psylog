@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
@@ -42,7 +43,7 @@ class CategoryConfig:
 
 
     def validate(self, value: Any) -> bool:
-        if value == "n/a":
+        if self._is_missing(value):
             return self.allow_na
 
         if self.data_type is not None and not isinstance(value, self.data_type):
@@ -52,6 +53,14 @@ class CategoryConfig:
 
 
     def _validate_config(self) -> None:
+
+        if self.data_type is not None:
+            if not isinstance(self.data_type, (type, tuple)):
+                raise TypeError("data_type must be a type, tuple of types, or None")
+
+            if isinstance(self.data_type, tuple) and not all(
+                isinstance(t, type) for t in self.data_type):
+                raise TypeError("All data_type entries must be types")
 
         if not isinstance(self.name, str) or not self.name:
             raise ValueError("Category name must be a non-empty string")
@@ -64,9 +73,14 @@ class CategoryConfig:
                 f"Default {self.default!r} is invalid for {self.name!r}"
             )
 
+        if self.validate_levels and not self.levels:
+            raise ValueError(
+                "validate_levels requires at least one predefined level"
+            )
+
     def record_value(self, value: Any) -> None:
         """Record an encountered value as a BIDS level."""
-        if not self.collect_levels or value == "n/a":
+        if not self.collect_levels or self._is_missing(value):
             return
 
         self.levels.setdefault(str(value), "")
@@ -89,6 +103,16 @@ class CategoryConfig:
         }
 
         if self.levels:
-            result["levels"] = dict(sorted(self.levels.items()))
+            result["Levels"] = dict(sorted(self.levels.items()))
 
         return result
+
+
+    def _is_missing(self, value: Any) -> bool:
+        if value is None:
+            return True
+
+        if isinstance(value, float) and math.isnan(value):
+            return True
+
+        return isinstance(value, str) and value == "n/a"

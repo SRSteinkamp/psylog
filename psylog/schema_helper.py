@@ -112,7 +112,7 @@ def get_mandatory_bids_events(
             description=trial_type_description,
             units=trial_type_units,
             collect_levels=True,
-            data_type=str,
+            data_type=(str),
         ),
     ]
 
