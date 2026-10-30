@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
-
+@runtime_checkable
 class LogOutput(Protocol):
     """
     Protocol for output streams.
@@ -54,11 +54,11 @@ class DictLogOutput(LogOutput):
     def __init__(self):
         self.data: dict[str, list[str]] = {}
 
-    def create(self, columns: list[str], sep: str) -> None:
+    def create(self, columns: list[str], sep: str | None = None) -> None:
         """Initialise an empty list for every column."""
         self.data = {col: [] for col in columns}
 
-    def write_row(self, values: list[str], sep: str) -> None:
+    def write_row(self, values: list[str], sep: str | None = None) -> None:
         """Append each value to its column's list."""
         for col, val in zip(self.data, values):
             self.data[col].append(val)
@@ -66,7 +66,7 @@ class DictLogOutput(LogOutput):
     def close(self) -> None:
         """Nothing to flush."""
 
-
+@runtime_checkable
 class ClockInterface(Protocol):
     """
     Protocol for the implementation of clocks. The logger requires as
