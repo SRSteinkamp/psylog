@@ -96,7 +96,8 @@ class BaseLogger:
         if static_columns is not None:
             self.categories.extend(create_static_fields(static_columns))
 
-        self.categories_dict = validate_and_build_categories(categories=categories, mandatory_categories=self.MANDATORY_CATEGORIES)
+        self.categories_dict = validate_and_build_categories(categories=self.categories,
+                                                             mandatory_categories=self.MANDATORY_CATEGORIES)
 
         self.implied_handlers = {}
         self.add_implied_handler("onset", default_onset_handler)
