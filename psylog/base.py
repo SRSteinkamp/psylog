@@ -237,6 +237,40 @@ class PsychoPyLogger(BaseLogger):
         static_columns: dict[str, Any] | None = None,
         output: LogOutput | None = None,
     ) -> None:
+        """
+        Logger tailored (and tested) for PsychoPy. Has the same arguments
+        as the BaseLogger but has a few more default categories. And has
+        a start_trial method, that increases trial number and resets the
+        trial clock.
+
+        Parameters
+        ----------
+        file_name : str | Path | None
+            The output path to the file. Can be None, then a DictLogOutput
+            logger will be used, if a file_name is provided, a FileLogOutput
+            instance will be create. If a LogOutput class is provided,
+            file_name will be ignored.
+        sep : str, optional
+            Separator for the logfile, by default "\t", will be ignored when
+            output is provided.
+        na : str, optional
+            The "na" value in the output file, by default "n/a", will be ignored
+            when output is provided.
+        clock : ClockInterface, optional
+            The clock that is used in the experiment, can ideally be reset to the
+            start of the experiment, by default None and a SystemClock will be
+            created.
+        trial_clock : ClockInterface, optional
+            Optional clock that can be reset a trial start using set_trial_start, by default None,
+            i.e. the logger clock will be used.
+        categories : list[CategoryConfig] | None, optional
+            List of logging categories, by default None, uses BIDS defaults
+            (onset, duration, trial_type).
+        static_columns : dict | None, optional
+            A dictionary of columns with static values, e.g., participant_id etc. By default None
+        output : LogOutput | None, optional
+            A OutputLog class if provided, will overwrite file_name. By default None
+        """
         if categories is None:
             categories = (
                 get_mandatory_bids_events()
@@ -259,19 +293,21 @@ class PsychoPyLogger(BaseLogger):
 
     def start_trial(self, trial_number: int | None = None):
         """
-        Start a new trial.
+        Function to indicate a new trial. Also calls "set_trial_time" to reset
+        internal trial clocks.
 
         Parameters
         ----------
-        trial_number : int, optional
-            Trial number to set, by default increments current trial
+        trial_number : int | None, optional
+            Overwrite trial_number, otherwise it will increase by 1, by default None
         """
+
         if trial_number is not None:
             self.current_trial = trial_number
         else:
             self.current_trial += 1
 
-        self._trial_start = self.get_time()
+        self.set_trial_time()
 
         # Update trial state category if it exists
         if "trial" in self.categories_dict:
