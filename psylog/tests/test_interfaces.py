@@ -6,13 +6,12 @@ from unittest.mock import Mock
 import pytest
 
 from psylog.interfaces import (
-    LogOutput,
-    FileLogOutput,
-    DictLogOutput,
     ClockInterface,
+    DictLogOutput,
+    FileLogOutput,
+    LogOutput,
     SystemClock,
 )
-
 
 # -------------------------------------------------------------------
 # LogOutput protocol
