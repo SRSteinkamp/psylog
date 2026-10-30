@@ -217,7 +217,7 @@ class BaseLogger:
 
     def get_bids_sidecar(self) -> dict:
         """Generate BIDS sidecar metadata."""
-        return {c: c.to_bids_dict() for c in self.categories}
+        return {c: cat.to_bids_dict() for c, cat in self.categories_dict.items()}
 
 
 class PsychoPyLogger(BaseLogger):

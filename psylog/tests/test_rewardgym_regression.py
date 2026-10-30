@@ -285,6 +285,9 @@ def test_regression():
         env.setup(logger = simlog, window = None, expose_last_stim = True)
         df, _, _ = pspy_run_task(env, logger = simlog, agent = agent, random_state=10)
 
+        if lg == "newer":
+            simlog.get_bids_sidecar()
+
         df_out.append(pd.DataFrame(df.close()))
 
     print("done")
