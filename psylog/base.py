@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Any, Callable
+from collections.abc import Any
 from pathlib import Path
 
 from .interfaces import ClockInterface, DictLogOutput, FileLogOutput, LogOutput, SystemClock
-from .log_schema import CategoryConfig
+from .log_handler import ImpliedHandler, default_onset_handler, default_trial_time_handler
+from .log_schema import CategoryConfig, LogMode
 from .log_utils import add_logging_info, create_default_dictionary, handle_onsets, serialize_value, update_state_categories
 from .schema_helper import (
     create_static_fields,
     get_mandatory_bids_events,
     get_psychopy_fields,
+    validate_and_build_categories,
 )
 
 
@@ -19,6 +21,8 @@ class BaseLogger:
     BaseLogger class, should take care of most basic logging and be useful
     on its own for many kinds of studies and experiments.
     """
+    MANDATORY_CATEGORIES = {"onset", "duration"} # I think these are used for implied calculations.
+
     def __init__(
         self,
         file_name: str | Path | None,
@@ -76,17 +80,13 @@ class BaseLogger:
         if static_columns is not None:
             self.categories.extend(create_static_fields(static_columns))
 
-        names = [category.name for category in self.categories]
+        self.categories_dict = validate_and_build_categories(categories=categories, mandatory_categories=self.MANDATORY_CATEGORIES)
 
-        if len(names) != len(set(names)):
-            raise ValueError("Category names must be unique")
+        self.implied_handlers = {}
+        self.add_implied_handler("onset", default_onset_handler)
 
-        self.categories_dict = {c.name: c for c in self.categories}
-
-        self.implied_handlers = {
-            "onset": self._default_onset_handler,
-            "trial_time": self._default_trial_time_handler,
-        }
+        if "trial_time" in self.categories_dict:
+            self.add_implied_handler("trial_time", default_trial_time_handler)
 
         # Initialize file state
         if output is None:
@@ -169,20 +169,16 @@ class BaseLogger:
 
         return None
 
-    def add_implied_handler(
-        self, category_name: str, handler_func: Callable[[], Any]
-    ) -> None:
-        """
-        Add a simple handler for an IMPLIED category.
+    def add_implied_handler(self, category_name: str, handler_func: ImpliedHandler) -> None:
 
-        Parameters
-        ----------
-        category_name : str
-            Name of the category to handle
-        category_handler : Callable[[], Any]
-            Function that returns the value (takes no arguments)
-        """
+        if category_name not in self.categories_dict:
+            raise ValueError(f"{category_name} not in provided categories!")
+
+        if self.categories_dict[category_name].mode != LogMode.IMPLIED:
+            raise ValueError(f"{category_name} has mode: {self.categories_dict[category_name].mode}, it should be {LogMode.IMPLIED}")
+
         self.implied_handlers[category_name] = handler_func
+
 
     def _handle_implied_category(self, category_name: str) -> Any:
         """
@@ -199,21 +195,9 @@ class BaseLogger:
             The computed value or na
         """
         if category_name in self.implied_handlers:
-            return self.implied_handlers[category_name]()
+            return self.implied_handlers[category_name](self, self.categories_dict[category_name])
+
         return self.na
-
-    def _default_onset_handler(self) -> float:
-        """Simple handler for onset times"""
-        return self.get_time()
-
-    def _default_trial_time_handler(self) -> float:
-        """Simple handler for trial time"""
-        current_trial_time = self.get_trial_time()
-
-        if current_trial_time is None:
-            return self.na
-        else:
-            return current_trial_time
 
     def get_bids_sidecar(self) -> dict:
         """Generate BIDS sidecar metadata."""

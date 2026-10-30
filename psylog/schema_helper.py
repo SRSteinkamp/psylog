@@ -5,6 +5,27 @@ from typing import Any
 from .log_schema import CategoryConfig, LogMode, Validator
 
 
+def validate_and_build_categories(
+    categories: list[CategoryConfig],
+    mandatory_categories: set[str],
+) -> dict[str, CategoryConfig]:
+    """Validate categories and build a category lookup dictionary."""
+
+    names = [category.name for category in categories]
+
+    if len(names) != len(set(names)):
+        raise ValueError("Category names must be unique")
+
+    missing = mandatory_categories - set(names)
+
+    if missing:
+        raise ValueError(
+            f"Missing mandatory logging categories: {sorted(missing)}"
+        )
+
+    return {category.name: category for category in categories}
+
+
 def create_static_fields(
     field_values: dict[str, Any],
     description_template: str = "Static field: {}",
