@@ -23,6 +23,13 @@ jobs:
         run: python -c "import sys; print(sys.version)"
       - name: Install
         run: pip install -e '.[test,regression]'
+      - name: Debug rewardgym
+        run: |
+          python -c "import rewardgym; print(rewardgym.__file__)"
+          python -c "import rewardgym; print(rewardgym.__path__)"
+          python -m pip show rewardgym
+          python -m pip freeze | grep -i rewardgym
+          python -c "import rewardgym; print(rewardgym.ENVIRONMENTS); print(rewardgym._task_registry); print(list((rewardgym.TASKS_DIR / 'tasks').iterdir()))"
       - name: Lint with ruff
         run: |
           # stop the build if there are Python syntax errors or undefined names

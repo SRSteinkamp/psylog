@@ -1,7 +1,6 @@
 """Logger classes used by the experiment."""
 
 import pandas as pd
-from rewardgym import get_env
 from rewardgym.agents.base_agent import QAgent
 from rewardgym.psychopy_render import psychopy_stubs as core
 from rewardgym.psychopy_render.logger import SimulationLogger as SMLR
@@ -257,13 +256,14 @@ class SimulationLoggerNew(ExperimentLoggerNew):
 
 
 def test_regression():
+    import rewardgym
 
     df_out = []
 
     for lg in ["newer", "old"]:
         print(lg)
         task = "risk-sensitive"
-        env = get_env(task, seed = 10, render_backend = "psychopy-simulate")
+        env = rewardgym.get_env(task, seed = 10, render_backend = "psychopy-simulate")
 
         agent = QAgent(
             learning_rate = 0.1,
