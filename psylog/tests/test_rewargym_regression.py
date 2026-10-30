@@ -34,7 +34,7 @@ class ExperimentLoggerNew(BaseLogger):
         kill_switch: str = "q",
         mr_trigger: str = "5",
         mr_clock: Clock = None,
-        categories: list = None
+        categories: list | None = None
     ):
         """
         Logger class to help with logging during a potential fMRI experiment,
@@ -105,7 +105,7 @@ class ExperimentLoggerNew(BaseLogger):
         # Create the file (writes header)
         self.create()
 
-    def log_event(self, info_dict: dict, reward: float = None, onset: float = None):
+    def log_event(self, info_dict: dict, reward: float | None = None, onset: float | None = None):
         """
         Logs the current event.
 
@@ -134,7 +134,7 @@ class ExperimentLoggerNew(BaseLogger):
 
 
     def key_strokes(
-        self, win: Window, keyList: list[str] = []
+        self, win: Window, keyList: list[str] | None = None
     ) -> tuple[str, float] | None:
         """
         Check for key strokes in the keyboard buffer. Checking for MR-triggers,
@@ -152,6 +152,8 @@ class ExperimentLoggerNew(BaseLogger):
         Union[Tuple[str, float], None]
             _description_
         """
+        if keyList is None:
+            keyList = []
         presses = getKeys(timeStamped=self.clock)
         response = None
 
@@ -196,7 +198,7 @@ class ExperimentLoggerNew(BaseLogger):
             return response
 
 
-    def wait(self, win, time: float, start: float = None, wait_no_keys: bool = False):
+    def wait(self, win, time: float, start: float | None = None, wait_no_keys: bool = False):
         """
         Wait for a given time.
 
@@ -243,7 +245,7 @@ class SimulationLoggerNew(ExperimentLoggerNew):
         """Return the stored data instead of closing a file."""
         return self._output.data  # Assuming DictLogOutput stores data in self.data
 
-    def wait(self, win, time: float, start: float = None):
+    def wait(self, win, time: float, start: float | None = None):
         """Override wait to work with simulation."""
         if time is None:
             return
