@@ -201,17 +201,7 @@ class BaseLogger:
 
     def get_bids_sidecar(self) -> dict:
         """Generate BIDS sidecar metadata."""
-        return {
-            c.name: {
-                "Description": c.description,
-                "LongName": c.long_name,
-                "Units": c.units,
-                "Levels": {str(v): "" for v in c.validator.validator}
-                if isinstance(c.validator.validator, (list, tuple, set))
-                else {},
-            }
-            for c in self.categories
-        }
+        return {c: c.to_bids_dict() for c in self.categories}
 
 
 class PsychoPyLogger(BaseLogger):
