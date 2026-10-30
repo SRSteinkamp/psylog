@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from collections.abc import Any, Callable, Iterable
+from collections.abc import Callable, Iterable
 from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
 
 
 class LogMode(Enum):

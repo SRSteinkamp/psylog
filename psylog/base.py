@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Any
 from pathlib import Path
+from typing import Any
 
 from .interfaces import ClockInterface, DictLogOutput, FileLogOutput, LogOutput, SystemClock
 from .log_handler import ImpliedHandler, default_onset_handler, default_trial_time_handler

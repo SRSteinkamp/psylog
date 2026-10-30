@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .log_schema import CategoryConfig
-from .logger import BaseLogger
+
+if TYPE_CHECKING:
+    # This is to provide cyclical imports.
+    from .base import BaseLogger
 
 ImpliedHandler = Callable[
-    [BaseLogger, CategoryConfig],
+    ["BaseLogger", CategoryConfig],
     Any,
 ]
 
