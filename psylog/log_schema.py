@@ -11,30 +11,34 @@ class LogMode(Enum):
     """Controls how a category is handled in logging"""
 
     STATIC = "static"  # Always included in output, does not change during the experiment. E.g. participant id and similar.
-    EVENT = "event"  # Provided by user. Otherwise defaults to NaN
+    EVENT = "event"  # Provided by the user, uses only provided data at log time.
     IMPLIED = "implied"  # These use specific functions, e.g. clocks of the Logger, so handle with care.
-    STATE = "state"  # Takes on a state, that is being logged continuously, states can be overwritten by user.
+    STATE = "state"  # Takes on a state, that is being logged continuously, states will be overwritten, when new data is logged.
 
 
 @dataclass
 class CategoryConfig:
-    name: str
-    default: Any
-    mode: LogMode = LogMode.EVENT
+    """
+    CategoryConfig is the config class that handles how the logger handles each Category it is supposed to be logging.
+    """
+    name: str # Name of category and the column in the logfile
+    default: Any # The default value - should be provided during construction
+    mode: LogMode = LogMode.EVENT # See LogMode enum for more information.
 
     # Validation
-    data_type: type | tuple[type, ...] | None = None
-    allow_na: bool = True
+    data_type: type | tuple[type, ...] | None = None # Which data-type is expected, if None everything goes
+    allow_na: bool = True # If non finite values or "n/a" as a sring is allowed.
 
     # BIDS metadata
-    description: str = ""
-    units: str = "n/a"
-    long_name: str = ""
+    description: str = "" # Descriptions in BIDS sidecare (events.json)
+    units: str = "n/a" # Which units are being logged.
+    long_name: str = "" # Long name, when an abbreviation is used. E.g., "stim" and "stimulus"
 
     # Levels
-    levels: dict[str, str] = field(default_factory=dict)
-    validate_levels: bool = False
-    collect_levels: bool = False
+    levels: dict[str, str] = field(default_factory=dict) # Different levels of the experiment (e.g., trial type.)
+                                                         # Is a dictionary to allow descriptions.
+    validate_levels: bool = False # If pre-specified levels should be validated (no other input allowed)
+    collect_levels: bool = False # If levels should be collected during the logging process.
 
 
     def __post_init__(self):
