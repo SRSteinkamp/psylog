@@ -1,7 +1,6 @@
 import sys
 import warnings
 
-import pandas as pd
 from rewardgym.agents.base_agent import QAgent
 from rewardgym.psychopy_render import psychopy_stubs as core
 from rewardgym.psychopy_render.logger import SimulationLogger as SMLR
@@ -259,6 +258,7 @@ class SimulationLoggerNew(ExperimentLoggerNew):
 
 def test_regression():
     try:
+        import pandas as pd
         import rewardgym
 
         rewardgym_installed = True
