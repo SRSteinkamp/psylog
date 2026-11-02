@@ -11,7 +11,7 @@ dynamic = ["version"]
 authors = [
     { name = "SRSteinkamp", email= "rewardgym@mailbox.org" },
     ]
-description = "psylog is a small library initially written to log PsychoPy experiments. As I kept copying the scripts, I decided, it's worth to try to abstract for the future."
+description = "psylog provides a flexible long-format logging class for experiments in psychology and neuroscience."
 readme = "README.md"
 license-files = ["LICEN[CS]E*"]
 
