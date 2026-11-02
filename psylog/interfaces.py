@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 from pathlib import Path
 from typing import Protocol, runtime_checkable
-
+import warnings
 
 @runtime_checkable
 class LogOutput(Protocol):
@@ -42,6 +42,8 @@ class FileLogOutput(LogOutput):
         if self._file:
             self._file.close()
             self._file = None
+        else:
+            warnings.warn("No file is currently open.", UserWarning)
 
 
 class DictLogOutput(LogOutput):
