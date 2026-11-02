@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import time
+import warnings
 from pathlib import Path
 from typing import Protocol, runtime_checkable
-import warnings
+
 
 @runtime_checkable
 class LogOutput(Protocol):
