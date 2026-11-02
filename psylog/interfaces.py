@@ -80,9 +80,12 @@ class ClockInterface(Protocol):
 class SystemClock(ClockInterface):
     """
     Simple Clock not really intended for use in experiments.
-    But I does the trick for testing etc.
+    But I does the trick for testing etc. Subtracts the time at creation, to
+    get more useful seconds.
     """
+    def __init__(self):
+        self.init_time = time.time()
 
     def getTime(self) -> float:
-        return time.time()
+        return time.time() - self.init_time
 
