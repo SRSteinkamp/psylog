@@ -61,8 +61,8 @@ I am using `pre-commit`, so afterwards run `pre-commit install` in the
 psylog repository.
 
 If you are using Python <= 3.11, running the regression tests as well would be
-appreciated (`pip install -e ."[dev, regression]"`), this, however installs
-a bunch of other packages, that are a dependency of `rewardgym`.
+appreciated by me (`pip install -e ."[dev]"`). This, however requires installing
+`rewardgym` from github directly. Tests are otherwise skipped.
 
 ## Main philosophy
 
