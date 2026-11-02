@@ -1,3 +1,20 @@
+# 0.1.1 (Mon Nov 02 2026)
+
+#### Bug Fix / Patch
+
+- Trying to run auto. [#9](https://github.com/SRSteinkamp/psylog/pull/9) ([@SRSteinkamp](https://github.com/SRSteinkamp))
+- Creating core documentation. [#8](https://github.com/SRSteinkamp/psylog/pull/8) ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### ⚠️ Pushed to `main`
+
+- Update auto-release.yaml ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### Authors: 1
+
+- SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+---
+
 # 0.1.0 (Fri Oct 30 2026)
 
 #### Breaking Change during development
