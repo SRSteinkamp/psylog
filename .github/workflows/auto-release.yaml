@@ -32,7 +32,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: main
     - name: Create release without version prefix
-      uses: auto-it/setup-auto@v2
+      uses: auto-it/setup-auto@v2.0.0
     - name: Relase
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
