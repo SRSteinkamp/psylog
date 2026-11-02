@@ -16,9 +16,13 @@ Thus, the logger identifies four logging modes for its categories (more below):
 * `STATE` - Information that changes the state of a value in a column (for example the trial or condition `EVENT`s belong to.
 * `IMPLIED` - A special value that is calculated on the fly. 
 
-| :warning: A note on timing   |
-|----------------------------------------------|
-| I haven't tested this implementation with regards to ms precision in timing. Be very careful and do your own assessments, when using these tools for e.g. EEG experimentation!|
+> [!CAUTION]
+> **Timing!** I haven't tested this implementation with regards to ms precision in timing. Be **very** careful and do your own
+> assessments, when using this package for e.g. EEG experimentation! Any feedback on this is greatly appreciated!
+
+> [!NOTE]
+> Unittests have mostly been AI generated (see below), and are not yet fully verified.
+> Regression tests are run against an older package to make sure, that loggers are compatible.
 
 ## Features
 
