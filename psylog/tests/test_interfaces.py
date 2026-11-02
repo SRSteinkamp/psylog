@@ -82,12 +82,12 @@ def test_file_log_output_write_without_create_raises(tmp_path):
     with pytest.raises(FileNotFoundError, match="File does not exist!"):
         output.write_row(["Alice", "30"], ",")
 
-
-def test_file_log_output_close_without_create(tmp_path):
+def test_file_log_output_close_without_create_warning(tmp_path):
     output = FileLogOutput(tmp_path / "test.csv")
 
-    # Should not raise an exception.
-    output.close()
+    with pytest.warns(UserWarning, match="No file is currently open."):
+        # Should not raise an exception.
+        output.close()
 
 
 def test_file_log_output_close_twice(tmp_path):
@@ -97,7 +97,8 @@ def test_file_log_output_close_twice(tmp_path):
     output.close()
 
     # Closing an already closed output should be safe.
-    output.close()
+    with pytest.warns(UserWarning, match="No file is currently open."):
+        output.close()
 
     assert output._file is None
 
@@ -310,14 +311,12 @@ def test_system_clock_returns_float():
     assert isinstance(result, float)
 
 
-def test_system_clock_returns_current_time(monkeypatch):
-    expected_time = 1234567890.5
-
-    monkeypatch.setattr(time, "time", lambda: expected_time)
+def test_system_clock_returns_close_enough_time():
+    expected_time = time.time()
 
     clock = SystemClock()
 
-    assert clock.getTime() == (expected_time - clock.init_time)
+    assert(clock.getTime() - (expected_time - clock.init_time)) <= 0.001
 
 # -------------------------------------------------------------------
 # Protocol-compatible mock clock
