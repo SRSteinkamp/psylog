@@ -19,14 +19,14 @@ class LogMode(Enum):
 @dataclass
 class CategoryConfig:
     """
-    CategoryConfig is the config class that handles how the logger handles each Category it is supposed to be logging.
+    Core class of the logger, defining the columns and how they should be logged.
     """
     name: str # Name of category and the column in the logfile
     default: Any # The default value - should be provided during construction
     mode: LogMode = LogMode.EVENT # See LogMode enum for more information.
 
     # Validation
-    data_type: type | tuple[type, ...] | None = None # Which data-type is expected, if None everything goes
+    data_type: type | tuple[type, ...] | None = None # Which data-type is expected, if None everything is accepted.
     allow_na: bool = True # If non finite values or "n/a" as a sring is allowed.
 
     # BIDS metadata
@@ -36,7 +36,7 @@ class CategoryConfig:
 
     # Levels
     levels: dict[str, str] = field(default_factory=dict) # Different levels of the experiment (e.g., trial type.)
-                                                         # Is a dictionary to allow descriptions.
+                                                         # uses a dictionary to allow descriptions of the levels.
     validate_levels: bool = False # If pre-specified levels should be validated (no other input allowed)
     collect_levels: bool = False # If levels should be collected during the logging process.
 
