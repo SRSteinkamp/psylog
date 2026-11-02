@@ -1,10 +1,20 @@
 # psylog
 
-Is a flexibly extendable logging class to write the onsets of events in experiments
-in psychology or cognitive neuroscience to a file. 
+Psylog is the logger I want for logging events in experiments in psychology and 
+cognitive neuroscience.
 
-It tries to adhere to [BIDS](bids-specification.readthedocs.io/en/stable/) standards and is in large parts developed
-with users of [PsychoPy](https://psychopy.org/) in mind.
+The core idea is to flexibly fill in a long-form `.tsv` file, for each event,
+with as little headache as possible - and to adhere to [BIDS](bids-specification.readthedocs.io/en/stable/) standards
+as much as possible. And out of my preference, to be compatible with [PsychoPy](https://psychopy.org/).
+
+Information for each logged event (stimulus presentation, button press), should further be as minimal as possible. 
+
+Thus, the logger identifies four logging modes for its categories (more below):
+
+* `STATIC` - This is information that does not change over the course of the experiment (e.g., participant_id).
+* `EVENT` - Information that is only important at this time point.
+* `STATE` - Information that changes the state of a value in a column (for example the trial or condition `EVENT`s belong to.
+* `IMPLIED` - A special value that is calculated on the fly. 
 
 | :warning: A note on timing   |
 |----------------------------------------------|
@@ -12,11 +22,12 @@ with users of [PsychoPy](https://psychopy.org/) in mind.
 
 ## Features
 
-* Flexible logging of events
-* On the fly calculation of reaction times
+* Flexible, no headeache, logging of events
+* Tries to provide a clean long-form table of outputs or a dictionary compatible with pandas.
+* Extendable logging categories (columns)
 * Outputs trying to adhere to the BIDS standard (defaults)
-* Has some input validation.
-* With a little extra effort can write an `events.json` sidecar.
+* Inputs can be validated - good for debugging.
+* Providing a little extra information it can output sidecars for e.g., BIDS datasets.
 
 Enhancement plans:
 
@@ -29,36 +40,39 @@ trying to streamline reinforcement learning experiments for humans.
 
 ## Installation
 
-The main package is pure python, so there are no other dependencies. Python >= 3.10 is supported.
+The main package is pure python, so there are no extra dependencies.
+Python >= 3.10 is supported. 
 
 ## Main philosophy
 
 The main components of this package are the logger and category classes.
 
-For example a simple logger, only having mandatory BIDS fields for `onset`, `duration`, and `trial_type` will
+### The BaseLogger:
+For example a simple logger, only having mandatory BIDS fields for `onset`, `duration`, and `trial_type` can
 be instantiated as:
 
 ```python
 import time
 from psylog import BaseLogger
 
-# The BaseLogger will default to system time as a default clock.
+# The BaseLogger will default to returning `time.time` as a default clock, for simplicity, the creation time is
+# subtracted.
 logger = BaseLogger(file_name="test.tsv")
-# Create the first row of the tsv file and open the file:
+# Open the file and write the first row (overwrites without warning!):
 logger.create()
-# The logger will now write each new line to the file.
+# The logger will now write a new line to the file, each time log_event is being called.
 
-# The main function is the logging of events - the value of each column can be set here:
+# The main function is the logging of events - the value of each column can be set via a dictionary:
 logger.log_event({
     "trial_type": "stimulus1"
 })
-# The logger will infer the onset time using the logger's clock.
+# The logger will infer the onset using the logger's clock.
 
 # A special functionality is determining the duration of an event, by providing
 # the original onset:
 onset_stim2 = logger.get_time()
 
-time.sleep(1.0)
+time.sleep(0.5)
 
 logger.log_event({
     "trial_type": "stimulus2",
@@ -71,20 +85,20 @@ logger.close()
 
 ### The categories
 
-The logger is augmented using the `CategoryConfig` class.
+What the logger is keeping track of is defined using `CategoryConfig` objects.
 
 ```python
 @dataclass
 class CategoryConfig:
     """
-    CategoryConfig is the config class that handles how the logger handles each category it is logging.
+    Core class of the logger, defining the columns and how they should be logged.
     """
     name: str # Name of category and the column in the logfile
     default: Any # The default value - should be provided during construction
     mode: LogMode = LogMode.EVENT # See LogMode enum for more information.
 
     # Validation
-    data_type: type | tuple[type, ...] | None = None # Which data-type is expected, if None everything goes
+    data_type: type | tuple[type, ...] | None = None # Which data-type is expected, if None everything is accepted.
     allow_na: bool = True # If non finite values or "n/a" as a sring is allowed.
 
     # BIDS metadata
@@ -94,7 +108,7 @@ class CategoryConfig:
 
     # Levels
     levels: dict[str, str] = field(default_factory=dict) # Different levels of the experiment (e.g., trial type.)
-                                                         # Is a dictionary to allow descriptions.
+                                                         # uses a dictionary to allow descriptions of the levels.
     validate_levels: bool = False # If pre-specified levels should be validated (no other input allowed)
     collect_levels: bool = False # If levels should be collected during the logging process.
 ```
@@ -120,7 +134,7 @@ from psylog import LogMode, CategoryConfig, BaseLogger
 import pandas as pd
 
 categories = [
-    # Onsets are IMPLIED, as they are calculated on the fly (if not provided via the dictionary)
+    # Onsets are IMPLIED, as they are calculated on the fly (if not provided via the dictionary or the onset argument)
     CategoryConfig(
         name="onset",
         default="n/a",
@@ -172,11 +186,22 @@ categories = [
     # Trial time is another category, that is IMPLIED and calculated by the logger,
     # it has a default handler - more to this later.
     CategoryConfig(
-        name="trial_time", default="n/a", mode=LogMode.IMPLIED, description="time since trial started", units="n/a", data_type=(float, int)
+        name="trial_time", 
+        default="n/a", 
+        mode=LogMode.IMPLIED, 
+        description="time since trial started", 
+        units="n/a", 
+        data_type=(float, int)
     ),
     # Participant ID is a persistent column during data collection. It's sometimes helpful to include it throughout.
     # It is static as it is not changed throughout the experiment.
-    CategoryConfig(name="participant_id", default="sub-001", mode=LogMode.STATIC, description="The participant ID", units="n/a", data_type=(str)),
+    CategoryConfig(
+        name="participant_id", 
+        default="sub-001", 
+        mode=LogMode.STATIC, 
+        description="The participant ID", 
+        units="n/a", 
+        data_type=(str)),
 ]
 
 # Loggers can also be created using file_name = None, this will then write everything to a dictionary.
@@ -199,9 +224,9 @@ for trial, condition in enumerate(["go", "no-go", "go", "no-go"]):
 
 logger.close()
 
-# Collecting the data in a pandas dataframe:
+# Collecting data in a pandas dataframe - pandas is not a requirement and needs to be installed:
 print(pd.DataFrame((logger._output.data)))
-# Acces to the different categories and their attributes
+# Access to the different categories and their attributes, here the levels that have been collected for trial_type
 print(logger.categories_dict["trial_type"].levels)
 # Get a dictionary from the logger to create BIDS Sidecars, can be saved to .json
 print(logger.get_bids_sidecar())
@@ -216,7 +241,8 @@ For now only a short explanation here. The logger uses handlers to deal with
 hardcoded).
 
 Handlers are functions, that take the logger and a category as inputs and return a single value.
-For example, the `onset` handler simply returns the `logger.clock` time:
+For example, the `default_onset_handler` returns the `logger.clock` time:
+
 ```python
 def default_onset_handler(logger: BaseLogger, category: CategoryConfig) -> float:
     """Simple handler for onset times"""
@@ -238,7 +264,7 @@ Add the package as a user specified package (i.e. pip install -e .) or install v
 
 ### Set-up
 
-In the "BeginExp" tab you first have to initiated the logger. This example here 
+In the "Begin Exp" tab you first have to initiated the logger. This example here 
 uses defaults. But it can be easily extended (see some of the other examples).
 
 The default columns, that should be always be in the logger are (BIDS defaults):
@@ -274,8 +300,9 @@ PPL.create()
 ### Starting a trial
 
 In the routine that starts your trial, I would recommend to call the `start_trial`
-method. Which resets the trial clock and if no argument is provided increases
-the internal trial counter by one.
+method. Which internally records the time and subtracts it from the global clock to 
+calculate the trial_time. If a `trial_clock` has been provided, you would need to reset it 
+manually. If no argument is provided it increases the internal trial counter by one.
 
 ```python
 # Increases the trial "state" and uses PsychoPy trial handler (the loop here is called `trials`) to
@@ -292,9 +319,9 @@ PPL.log_event(
 
 ### Dynamically keeping track of stimuli
 
-Using some AI help, I figured out (to hopefully accurately track) on and offsets of stimuli in PsychoPy Builder.
+Using some AI help, I manage (to hopefully accurately track) on and offsets of stimuli in PsychoPy Builder.
 
-First create information about all the stimuli that should be tracked in the "Begin Routine" tab.
+First create information about all the stimuli that should be tracked in the `Begin Routine` tab.
 
 ```python
 # Define all stimulus names you want to track, in this example there are three audio stimuli, which might 
@@ -311,7 +338,7 @@ for name in stimulus_names:
 # Track which stimuli are currently active (have started but not stopped)
 activeStims = set()
 ```
-Then in the Each Frame tab you can basically poll for every frame if the 
+Then in the `Each Frame` tab you can basically poll for every frame if the 
 stimulus has started or ended.
 
 ```python
@@ -341,7 +368,7 @@ for stimName in stimulus_names:
 This project developed out of my wish / need to have a logger for experiments that works in a way 
 that I like. The basics of the logger have been developed already a couple of years ago and modified for each experiment individually. 
 
-For future experiments,  I wanted to avoid re-implementation and aimed at generalizing the syntax for other studies and
+For future experiments, I wanted to avoid re-implementation and aimed at generalizing the syntax for other studies and
 create a proper package. 
 
 When I say experiments here, I am literally talking about experiments in **cognitive neuroscience** and **psychology**.
