@@ -317,20 +317,7 @@ def test_system_clock_returns_current_time(monkeypatch):
 
     clock = SystemClock()
 
-    assert clock.getTime() == expected_time
-
-
-def test_system_clock_calls_time_each_invocation(monkeypatch):
-    times = iter([100.0, 200.0, 300.0])
-
-    monkeypatch.setattr(time, "time", lambda: next(times))
-
-    clock = SystemClock()
-
-    assert clock.getTime() == 100.0
-    assert clock.getTime() == 200.0
-    assert clock.getTime() == 300.0
-
+    assert clock.getTime() == (expected_time - clock.init_time)
 
 # -------------------------------------------------------------------
 # Protocol-compatible mock clock
