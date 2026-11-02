@@ -1,3 +1,15 @@
+# 0.1.3 (Mon Nov 02 2026)
+
+#### Documentation
+
+- Removing automatic regression tests to rewardgym [#11](https://github.com/SRSteinkamp/psylog/pull/11) ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+#### Authors: 1
+
+- SRSteinkamp ([@SRSteinkamp](https://github.com/SRSteinkamp))
+
+---
+
 # 0.1.2 (Mon Nov 02 2026)
 
 #### Internal
