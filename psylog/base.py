@@ -70,8 +70,8 @@ class BaseLogger:
             start of the experiment, by default None and a SystemClock will be
             created.
         trial_clock : ClockInterface, optional
-            Optional clock that can be reset a trial start using set_trial_start, by default None,
-            i.e. the logger clock will be used.
+            Optional clock for time keeping in the "trial_time" column - needs to be manually reset. By Default None.
+            If None, set_trial_start, should be used to set internal time kepping using the logger.clock.
         categories : list[CategoryConfig] | None, optional
             List of logging categories, by default None, uses BIDS defaults
             (onset, duration, trial_type).
@@ -121,7 +121,7 @@ class BaseLogger:
     def log_event(self, info_dict: dict, onset: float | None = None) -> None:
 
         """
-        Log an event with proper BIDS categories.
+        Log an event.
 
         Parameters
         ----------
@@ -262,8 +262,8 @@ class PsychoPyLogger(BaseLogger):
             start of the experiment, by default None and a SystemClock will be
             created.
         trial_clock : ClockInterface, optional
-            Optional clock that can be reset a trial start using set_trial_start, by default None,
-            i.e. the logger clock will be used.
+            Optional clock for time keeping in the "trial_time" column - needs to be manually reset. By Default None.
+            If None, set_trial_start, should be used to set internal time kepping using the logger.clock.
         categories : list[CategoryConfig] | None, optional
             List of logging categories, by default None, uses BIDS defaults
             (onset, duration, trial_type).
