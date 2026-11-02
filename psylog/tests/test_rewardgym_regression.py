@@ -1,4 +1,5 @@
 import sys
+import warnings
 
 import pandas as pd
 from rewardgym.agents.base_agent import QAgent
@@ -33,7 +34,7 @@ class ExperimentLoggerNew(BaseLogger):
         kill_switch: str = "q",
         mr_trigger: str = "5",
         mr_clock: Clock = None,
-        categories: list | None = None
+        categories: list | None = None,
     ):
         """
         Logger class to help with logging during a potential fMRI experiment,
@@ -67,11 +68,7 @@ class ExperimentLoggerNew(BaseLogger):
             List of category configurations, by default rewardmap_defaults
         """
         # Set up static columns for participant_id, task, run
-        static_columns = {
-            "participant_id": participant_id,
-            "task": task,
-            "run": run
-        }
+        static_columns = {"participant_id": participant_id, "task": task, "run": run}
 
         # Set up clocks
         if global_clock is None:
@@ -84,7 +81,7 @@ class ExperimentLoggerNew(BaseLogger):
             na=na,
             categories=get_rewardmap_defaults(),
             static_columns=static_columns,
-            clock = global_clock
+            clock=global_clock,
         )
 
         self.global_clock = self.clock
@@ -104,7 +101,9 @@ class ExperimentLoggerNew(BaseLogger):
         # Create the file (writes header)
         self.create()
 
-    def log_event(self, info_dict: dict, reward: float | None = None, onset: float | None = None):
+    def log_event(
+        self, info_dict: dict, reward: float | None = None, onset: float | None = None
+    ):
         """
         Logs the current event.
 
@@ -130,7 +129,6 @@ class ExperimentLoggerNew(BaseLogger):
 
         # Call parent's log_event with our custom onset handling
         super().log_event(info_dict, onset=onset)
-
 
     def key_strokes(
         self, win: Window, keyList: list[str] | None = None
@@ -196,8 +194,9 @@ class ExperimentLoggerNew(BaseLogger):
         else:
             return response
 
-
-    def wait(self, win, time: float, start: float | None = None, wait_no_keys: bool = False):
+    def wait(
+        self, win, time: float, start: float | None = None, wait_no_keys: bool = False
+    ):
         """
         Wait for a given time.
 
@@ -221,12 +220,15 @@ class ExperimentLoggerNew(BaseLogger):
             if not wait_no_keys:
                 self.key_strokes(win)
 
-
     def update_trial_info(self, **kwargs):
         """Update trial-related state information."""
         for k, v in kwargs.items():
-            if k in self.categories_dict and self.categories_dict[k].mode == LogMode.STATE:
+            if (
+                k in self.categories_dict
+                and self.categories_dict[k].mode == LogMode.STATE
+            ):
                 self.categories_dict[k].set_state(v)
+
 
 class SimulationLoggerNew(ExperimentLoggerNew):
     """Simulation version that stores data in memory instead of writing to file."""
@@ -256,36 +258,43 @@ class SimulationLoggerNew(ExperimentLoggerNew):
 
 
 def test_regression():
-    if sys.version_info < (3, 12):
-
+    try:
         import rewardgym
 
+        rewardgym_installed = True
+
+    except (ModuleNotFoundError, ImportError):
+        rewardgym_installed = False
+        warnings.warn("Skipping regression test to rewardgym.")
+
+    if sys.version_info < (3, 12) and rewardgym_installed:
         df_out = []
 
         for lg in ["newer", "old"]:
             print(lg)
             task = "risk-sensitive"
-            env = rewardgym.get_env(task, seed = 10, render_backend = "psychopy-simulate")
+            env = rewardgym.get_env(task, seed=10, render_backend="psychopy-simulate")
 
             agent = QAgent(
-                learning_rate = 0.1,
-                temperature = 4,
-                discount_factor = 0.99,
-                action_space = env.n_actions,
-                state_space = env.n_states,
-                seed = 10
+                learning_rate=0.1,
+                temperature=4,
+                discount_factor=0.99,
+                action_space=env.n_actions,
+                state_space=env.n_states,
+                seed=10,
             )
 
-
             if lg == "old":
-                simlog = SMLR(file_name = None, task = task, participant_id = "test-agent")
+                simlog = SMLR(file_name=None, task=task, participant_id="test-agent")
             elif lg == "newer":
-                simlog = SimulationLoggerNew(file_name = None, task = task, participant_id = "test-agent")
-                simlog.categories_dict['total_reward'].mode = LogMode.EVENT
+                simlog = SimulationLoggerNew(
+                    file_name=None, task=task, participant_id="test-agent"
+                )
+                simlog.categories_dict["total_reward"].mode = LogMode.EVENT
 
             simlog.create()
-            env.setup(logger = simlog, window = None, expose_last_stim = True)
-            df, _, _ = pspy_run_task(env, logger = simlog, agent = agent, random_state=10)
+            env.setup(logger=simlog, window=None, expose_last_stim=True)
+            df, _, _ = pspy_run_task(env, logger=simlog, agent=agent, random_state=10)
 
             if lg == "newer":
                 simlog.get_bids_sidecar()
@@ -294,9 +303,8 @@ def test_regression():
 
         print("done")
 
-
         df_out[1] = df_out[1][df_out[0].columns]
-        df_out[1] = df_out[1].replace(to_replace=['None'], value="n/a")
+        df_out[1] = df_out[1].replace(to_replace=["None"], value="n/a")
         df_out[1].loc[:, "task"] = task
 
         assert (df_out[1] == df_out[0]).mean().mean() > 0.9999
