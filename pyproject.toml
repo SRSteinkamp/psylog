@@ -25,13 +25,6 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
-doc = [
-    "sphinx>=2.0",
-    "sphinx_rtd_theme",
-    "myst-parser[linkify]",
-    "sphinx-copybutton",
-    "sphinx-autoapi",
-]
 style = [
     "ruff",
     "pydocstyle",
@@ -48,7 +41,7 @@ devtools = [
     "pre-commit",
     "jupyter"
 ]
-dev = ["psylog[devtools,doc,test]"]
+dev = ["psylog[devtools,test]"]
 
 [project.urls]
 Source = "https://github.com/SRSteinkamp/psylog"
