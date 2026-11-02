@@ -51,7 +51,7 @@ devtools = [
     "pre-commit",
     "jupyter"
 ]
-dev = ["psylog[devtools,doc,test,regression]"]
+dev = ["psylog[devtools,doc,test]"]
 
 [project.urls]
 Source = "https://github.com/SRSteinkamp/psylog"

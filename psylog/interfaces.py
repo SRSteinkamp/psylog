@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import warnings
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
@@ -42,6 +43,8 @@ class FileLogOutput(LogOutput):
         if self._file:
             self._file.close()
             self._file = None
+        else:
+            warnings.warn("No file is currently open.", UserWarning)
 
 
 class DictLogOutput(LogOutput):
@@ -80,9 +83,12 @@ class ClockInterface(Protocol):
 class SystemClock(ClockInterface):
     """
     Simple Clock not really intended for use in experiments.
-    But I does the trick for testing etc.
+    But I does the trick for testing etc. Subtracts the time at creation, to
+    get more useful seconds.
     """
+    def __init__(self):
+        self.init_time = time.time()
 
     def getTime(self) -> float:
-        return time.time()
+        return time.time() - self.init_time
 
