@@ -31,19 +31,10 @@ jobs:
         # Use token with write access to the repo
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: main
-    - name: Download and install latest auto
-      env:
-        # OS can be linux, macos, or win
-        OS: linux
-        # Retrieve URL of latest auto, download it, unzip it, and give exec permissions.
-      run: |
-        curl -vkL -o - $( curl -s https://api.github.com/repos/intuit/auto/releases/latest \
-        | grep browser_download_url | grep ${OS} | awk -F'"' '{print $4}') \
-        | gunzip > ~/auto
-        chmod a+x ~/auto
     - name: Create release without version prefix
+      uses: auto-it/setup-auto@v2
+    - name: Relase
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # Run auto release, don't use 'v' prefix, and be verbose
-      run: |
-        ~/auto shipit --no-version-prefix -v
+      run: auto shipit --no-version-prefix -v
